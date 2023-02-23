@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 @Schema({ collection: 'geoJson' })
-export class GeoJSON extends Document {
+export class Geojson extends Document {
   @Prop(String)
   type: string;
 
@@ -21,4 +21,4 @@ export class GeoJSON extends Document {
   };
 }
 
-export const GeoJSONSchema = SchemaFactory.createForClass(GeoJSON);
+export const GeojsonSchema = SchemaFactory.createForClass(Geojson);

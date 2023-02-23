@@ -1,16 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-
-@Schema({ _id: false })
-class ImageList extends Document {
-  @Prop([String])
-  store: string[];
-
-  @Prop([String])
-  menu: string[];
-}
-
-export const ImageListSchema = SchemaFactory.createForClass(ImageList);
+import { ImageTabList } from 'src/admin/cafe/schemas/imageList.schemas';
 
 @Schema({ collection: 'cafe' })
 export class Cafe extends Document {
@@ -35,8 +25,10 @@ export class Cafe extends Document {
   @Prop(String)
   instaId: string;
 
-  @Prop({ type: ImageListSchema })
-  imageList: ImageList;
+  @Prop({ type: Object })
+  imageList: {
+    [key in ImageTabList]: string[];
+  };
 
   @Prop(String)
   naverMapUrl: string | null;

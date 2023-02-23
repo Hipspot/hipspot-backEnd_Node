@@ -3,11 +3,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CafeModule } from 'src/app/cafe/cafe.module';
 import { MapController } from './map.controller';
 import { MapService } from './map.service';
-import { GeoJSON, GeoJSONSchema } from './schemas/map.schemas';
+import { Geojson, GeojsonSchema } from './schemas/map.schemas';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: GeoJSON.name, schema: GeoJSONSchema }]),
+    MongooseModule.forFeature([{ name: Geojson.name, schema: GeojsonSchema }]),
     CafeModule,
   ],
   controllers: [MapController],
