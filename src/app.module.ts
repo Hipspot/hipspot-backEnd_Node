@@ -5,8 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
-import { CafeModule } from './cafe/cafe.module';
-import { MapModule } from './map/map.module';
+import { CafeModule } from './app/cafe/cafe.module';
+import { MapModule } from './app/map/map.module';
 
 dotenv.config({
   path: path.resolve(
