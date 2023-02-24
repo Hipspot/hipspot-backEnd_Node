@@ -2,18 +2,20 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CafeController } from './cafe.controller';
 import { CafeService } from './cafe.service';
-import {
-  OpeningHours,
-  openingHoursSchema,
-} from './schemas/openingHours.schemas';
-import { ImageList, ImageListSchema } from './schemas/imageList.schemas';
-import { Info, InfoSchema } from './schemas/info.schmas';
-import { Rating, ratingSchema } from './schemas/rating.schema';
-import { Price, priceSchema } from './schemas/price.schemas';
+import { CafeSubDocuments, CafeSubSchemas } from './schemas';
+
+const { ImageList, Info, Price, Rating, OpeningHours } = CafeSubDocuments;
+const {
+  Info: infoSchema,
+  Price: priceSchema,
+  Rating: ratingSchema,
+  OpeningHours: openingHoursSchema,
+  ImageList: ImageListSchema,
+} = CafeSubSchemas;
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Info.name, schema: InfoSchema }]),
+    MongooseModule.forFeature([{ name: Info.name, schema: infoSchema }]),
     MongooseModule.forFeature([{ name: Rating.name, schema: ratingSchema }]),
     MongooseModule.forFeature([{ name: Price.name, schema: priceSchema }]),
     MongooseModule.forFeature([

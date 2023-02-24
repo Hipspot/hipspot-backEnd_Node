@@ -22,6 +22,8 @@ export class CafeService {
     const types = ['info', 'openingHours', 'imageList', 'rating', 'price'];
     switch (type) {
       case 'info':
+        const info = await this.infoModel.find();
+        console.log(Info.fromCSV('6,아너카페,0507-1311-5191,honor_cafe'));
         return await this.infoModel.find();
       case 'openingHours':
         return await this.openingHoursModel.find();

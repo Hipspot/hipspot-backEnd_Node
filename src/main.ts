@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import mongoose from 'mongoose';
 import { AdminModule } from './admin/admin.module';
-import { AppModule } from './app/app.module';
+import { AppModule } from './domain/app/app.module';
 
 async function bootstrap() {
   mongoose.set('debug', true);
