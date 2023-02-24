@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import mongoose from 'mongoose';
-import { AdminModule } from './admin/admin.module';
+import { AdminModule } from './domain/admin/admin.module';
 import { AppModule } from './domain/app/app.module';
 
 async function bootstrap() {

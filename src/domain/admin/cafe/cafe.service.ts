@@ -22,21 +22,55 @@ export class CafeService {
     const types = ['info', 'openingHours', 'imageList', 'rating', 'price'];
     switch (type) {
       case 'info':
-        const info = await this.infoModel.find();
-        console.log(Info.fromCSV('6,아너카페,0507-1311-5191,honor_cafe'));
-        return await this.infoModel.find();
+
       case 'openingHours':
-        return await this.openingHoursModel.find();
+        const openingHorus = await this.openingHoursModel.find();
+        return openingHorus;
       case 'imageList':
-        return await this.imageListModel.find();
+        const imageList = await this.imageListModel.find();
+        return imageList;
       case 'rating':
-        return await this.ratingModel.find();
+        const rating = await this.ratingModel.find();
+        return rating;
       case 'price':
-        return await this.priceModel.find();
+        const price = await this.priceModel.find();
+        return price;
       default:
         return `오류오류, document type:${type} 확인해주세요. 확인 가능한 타입은 \n ${types.join(
           ', ',
         )} \n 입니다.`;
     }
+  }
+
+  async getInfo() {
+    const info = await this.infoModel.find();
+    return info;
+  }
+
+  async getOpeningHours() {
+    const openingHorus = await this.openingHoursModel.find();
+    return openingHorus;
+  }
+
+  async getImageList() {
+    const imageList = await this.imageListModel.find();
+    return imageList;
+  }
+
+  async getRating() {
+    const rating = await this.ratingModel.find();
+    return rating;
+  }
+  async getPrice() {
+    const price = await this.priceModel.find();
+    return price;
+  }
+
+  async updateOpeningHoursFromString(cafeId: string, str: string) {
+    const converted = OpeningHours.convertTime(str);
+    (await this.openingHoursModel.updateOne(
+      { cafeId },
+      { $set: { timeBlock: converted }, $unset: { time: 0 } },
+    )) as unknown as OpeningHours;
   }
 }
