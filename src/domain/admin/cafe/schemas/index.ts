@@ -1,6 +1,6 @@
-import { ImageList, ImageListSchema } from './imageList.schemas';
+import { ImageList, ImageListSchema } from './image-list.schemas';
 import { Info, infoSchema } from './info.schmas';
-import { OpeningHours, openingHoursSchema } from './openingHours.schemas';
+import { OpeningHours, openingHoursSchema } from './opening-hours.schemas';
 import { Price, priceSchema } from './price.schemas';
 import { Rating, ratingSchema } from './rating.schema';
 

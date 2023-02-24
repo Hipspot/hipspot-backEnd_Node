@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { ImageTabList } from 'src/domain/admin/cafe/schemas/imageList.schemas';
+import { ImageTabList } from 'src/domain/admin/cafe/schemas/image-list.schemas';
 
 @Schema({ collection: 'cafe' })
 export class Cafe extends Document {

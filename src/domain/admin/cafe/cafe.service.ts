@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { OpeningHours } from './schemas/openingHours.schemas';
-import { ImageList } from './schemas/imageList.schemas';
+import { OpeningHours } from './schemas/opening-hours.schemas';
+import { ImageList } from './schemas/image-list.schemas';
 import { Info } from './schemas/info.schmas';
 import { Rating } from './schemas/rating.schema';
 import { Price } from './schemas/price.schemas';
