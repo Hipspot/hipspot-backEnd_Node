@@ -4,10 +4,13 @@ import { Document } from 'mongoose';
 @Schema({ collection: 'location' })
 export class Location extends Document {
   @Prop(String)
-  cafeId: number;
+  cafeId: string;
 
   @Prop(String)
   address: string;
+
+  @Prop(String)
+  lot_address: string;
 
   @Prop(Number)
   lat: number;
