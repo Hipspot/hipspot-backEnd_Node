@@ -6,6 +6,7 @@ import { ImageList } from './schemas/image-list.schemas';
 import { Info } from './schemas/info.schmas';
 import { Rating } from './schemas/rating.schema';
 import { Price } from './schemas/price.schemas';
+import { FilterList } from './schemas/filtser-list.schemas';
 import { getBucketListObjectsCommand } from 'src/libs/aws/getObjectLists';
 import { Cafe } from 'src/domain/app/cafe/schemas/cafe.schema';
 
@@ -18,6 +19,7 @@ export class CafeService {
     private openingHoursModel: Model<OpeningHours>,
     @InjectModel(ImageList.name) private imageListModel: Model<ImageList>,
     @InjectModel(Price.name) private priceModel: Model<Price>,
+    @InjectModel(FilterList.name) private filterListModel: Model<FileList>,
     @InjectModel(Cafe.name) private cafeModel: Model<Cafe>,
   ) {}
 
@@ -51,6 +53,32 @@ export class CafeService {
   async getCafe(cafeId?: string) {
     const cafe = await this.cafeModel.find(cafeId ? { cafeId } : {});
     return cafe;
+  }
+
+  async getFilterList(cafeId?: string) {
+    const cafe = await this.filterListModel.find(cafeId ? { cafeId } : {});
+    return cafe;
+  }
+
+  async updateFilterList() {
+    const filterLists = (await this.filterListModel.find(
+      {},
+    )) as unknown as FilterList[];
+
+    for (let i = 0; i < filterLists.length; i++) {
+      const { cafeId, filterListCSV } = filterLists[i];
+      console.log(filterListCSV);
+      if (!Array.isArray(filterListCSV)) {
+        const filtetListArr = FilterList.fromCSV(filterListCSV);
+        console.log(filtetListArr);
+        await this.filterListModel.updateOne(
+          { cafeId },
+          { $set: { filterList: filtetListArr } },
+        );
+      }
+    }
+
+    return await this.filterListModel.find({});
   }
 
   async updateOpeningHours() {

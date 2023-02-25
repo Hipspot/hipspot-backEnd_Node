@@ -23,7 +23,14 @@ export class CafeController {
 
   @Get('/:param')
   async getDocument(@Param('param') param: string) {
-    const types = ['info', 'openingHours', 'imageList', 'rating', 'price'];
+    const types = [
+      'info',
+      'openingHours',
+      'imageList',
+      'rating',
+      'price',
+      'filterList',
+    ];
 
     if (isNumber(param)) {
       return this.cafeService.getCafe(param);
@@ -40,6 +47,8 @@ export class CafeController {
         return await this.cafeService.getRating();
       case 'price':
         return await this.cafeService.getPrice();
+      case 'filterList':
+        return await this.cafeService.getFilterList();
       default:
         return `오류오류, document type:${param} 확인해주세요. 확인 가능한 타입은 \n ${types.join(
           ', ',
@@ -52,7 +61,14 @@ export class CafeController {
     @Param('docType') docType: string,
     @Param('cafeId') cafeId: string,
   ) {
-    const types = ['info', 'openingHours', 'imageList', 'rating', 'price'];
+    const types = [
+      'info',
+      'openingHours',
+      'imageList',
+      'rating',
+      'price',
+      'filterList',
+    ];
 
     if (!isNumber(cafeId)) return await this.getDocument(docType);
 
@@ -67,6 +83,8 @@ export class CafeController {
         return await this.cafeService.getRating(cafeId);
       case 'price':
         return await this.cafeService.getPrice(cafeId);
+      case 'filterList':
+        return await this.cafeService.getFilterList(cafeId);
       default:
         return `오류오류, document type:${docType} 확인해주세요. 확인 가능한 타입은 \n ${types.join(
           ', ',
@@ -88,6 +106,16 @@ export class CafeController {
     switch (option) {
       case 'update':
         return await this.cafeService.updateOpeningHours();
+      default:
+        return `${option} 옵션은 존재하지 않습니다.`;
+    }
+  }
+
+  @Patch('/filtetList')
+  async filterList(@Query('option') option) {
+    switch (option) {
+      case 'update':
+        return await this.cafeService.updateFilterList();
       default:
         return `${option} 옵션은 존재하지 않습니다.`;
     }

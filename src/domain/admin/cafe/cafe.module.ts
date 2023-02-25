@@ -4,6 +4,7 @@ import { Cafe, CafeSchema } from 'src/domain/app/cafe/schemas/cafe.schema';
 import { CafeController } from './cafe.controller';
 import { CafeService } from './cafe.service';
 import { CafeSubDocuments, CafeSubSchemas } from './schemas';
+import { FilterList, filterListSchema } from './schemas/filtser-list.schemas';
 
 const { ImageList, Info, Price, Rating, OpeningHours } = CafeSubDocuments;
 const {
@@ -26,6 +27,9 @@ const {
       { name: OpeningHours.name, schema: openingHoursSchema },
     ]),
     MongooseModule.forFeature([{ name: Cafe.name, schema: CafeSchema }]),
+    MongooseModule.forFeature([
+      { name: FilterList.name, schema: filterListSchema },
+    ]),
   ],
   controllers: [CafeController],
   providers: [CafeService],
