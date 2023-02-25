@@ -6,6 +6,8 @@ import { ImageList } from './schemas/image-list.schemas';
 import { Info } from './schemas/info.schmas';
 import { Rating } from './schemas/rating.schema';
 import { Price } from './schemas/price.schemas';
+import { getBucketListObjectsCommand } from 'src/libs/aws/getObjectLists';
+import { Cafe } from 'src/domain/app/cafe/schemas/cafe.schema';
 
 @Injectable()
 export class CafeService {
@@ -16,61 +18,106 @@ export class CafeService {
     private openingHoursModel: Model<OpeningHours>,
     @InjectModel(ImageList.name) private imageListModel: Model<ImageList>,
     @InjectModel(Price.name) private priceModel: Model<Price>,
+    @InjectModel(Cafe.name) private cafeModel: Model<Cafe>,
   ) {}
 
-  async getDocument(type: string) {
-    const types = ['info', 'openingHours', 'imageList', 'rating', 'price'];
-    switch (type) {
-      case 'info':
-
-      case 'openingHours':
-        const openingHorus = await this.openingHoursModel.find();
-        return openingHorus;
-      case 'imageList':
-        const imageList = await this.imageListModel.find();
-        return imageList;
-      case 'rating':
-        const rating = await this.ratingModel.find();
-        return rating;
-      case 'price':
-        const price = await this.priceModel.find();
-        return price;
-      default:
-        return `오류오류, document type:${type} 확인해주세요. 확인 가능한 타입은 \n ${types.join(
-          ', ',
-        )} \n 입니다.`;
-    }
-  }
-
-  async getInfo() {
-    const info = await this.infoModel.find();
+  async getInfo(cafeId?: string) {
+    const info = await this.infoModel.find(cafeId ? { cafeId } : {});
     return info;
   }
 
-  async getOpeningHours() {
-    const openingHorus = await this.openingHoursModel.find();
+  async getOpeningHours(cafeId?: string) {
+    const openingHorus = await this.openingHoursModel.find(
+      cafeId ? { cafeId } : {},
+    );
     return openingHorus;
   }
 
-  async getImageList() {
-    const imageList = await this.imageListModel.find();
+  async getImageList(cafeId?: string) {
+    await getBucketListObjectsCommand();
+    const imageList = await this.imageListModel.find(cafeId ? { cafeId } : {});
     return imageList;
   }
 
-  async getRating() {
-    const rating = await this.ratingModel.find();
+  async getRating(cafeId?: string) {
+    const rating = await this.ratingModel.find(cafeId ? { cafeId } : {});
     return rating;
   }
-  async getPrice() {
-    const price = await this.priceModel.find();
+  async getPrice(cafeId?: string) {
+    const price = await this.priceModel.find(cafeId ? { cafeId } : {});
     return price;
   }
 
-  async updateOpeningHoursFromString(cafeId: string, str: string) {
-    const converted = OpeningHours.convertTime(str);
-    (await this.openingHoursModel.updateOne(
-      { cafeId },
-      { $set: { timeBlock: converted }, $unset: { time: 0 } },
-    )) as unknown as OpeningHours;
+  async getCafe(cafeId?: string) {
+    const cafe = await this.cafeModel.find(cafeId ? { cafeId } : {});
+    return cafe;
+  }
+
+  async updateOpeningHours() {
+    const openingHoursList = await this.openingHoursModel.find();
+    for (let i = 0; i < openingHoursList.length; i++) {
+      const { cafeId, time } = openingHoursList[i];
+      const openingHours = OpeningHours.convertTime(time);
+      (await this.openingHoursModel.updateOne(
+        { cafeId },
+        { $set: { openingHours } },
+      )) as unknown as OpeningHours;
+    }
+    return await this.openingHoursModel.find({});
+  }
+
+  async updateImageListData() {
+    const s3data = await getBucketListObjectsCommand();
+    if (!s3data) {
+      throw new Error('s3 데이터가 없습니다.');
+    }
+    const s3DataEntries = Object.entries(s3data);
+    for (let i = 0; i < s3DataEntries.length; i++) {
+      const [cafeId, imageList] = s3DataEntries[i] as unknown as [
+        string,
+        { menu: string[]; store: string[] },
+      ];
+      await this.imageListModel.updateOne(
+        { cafeId },
+        { $set: { menu: imageList.menu, store: imageList.store } },
+      );
+    }
+    return await this.imageListModel.find({});
+  }
+
+  async updateCafe() {
+    const cafe = await this.cafeModel.find({});
+
+    for (let i = 0; i < 10; i++) {
+      const { cafeId } = cafe[i];
+
+      const { cafeName, contactNum, address } = await this.infoModel.findOne(
+        { cafeId },
+        { _id: 0 },
+      );
+      const imageList = await this.imageListModel.findOne(
+        { cafeId },
+        { _id: 0, cafdId: 0 },
+      );
+      const { openingHours } = await this.openingHoursModel.findOne(
+        { cafeId },
+        { _id: 0, cafeId: 0 },
+      );
+
+      await this.cafeModel.updateOne(
+        { cafeId },
+        {
+          $set: {
+            cafeName,
+            contactNum,
+            address,
+            openingHours,
+            imageList,
+          },
+        },
+      );
+    }
+
+    return await this.cafeModel.find({});
   }
 }

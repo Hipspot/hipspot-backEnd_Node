@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { isContactNum, isNumber } from 'src/utils/helper/validation';
+import { isContactNum, isNumber } from 'src/libs/utils/helper/validation';
 
 export interface info {
-  cafeId: number;
+  cafeId: string;
   cafeName: string;
   contactNum: string;
   address: string;
@@ -21,8 +21,8 @@ enum InfoEnum {
 
 @Schema({ collection: 'info' })
 export class Info extends Document implements info {
-  @Prop(Number)
-  cafeId: number;
+  @Prop(String)
+  cafeId: string;
 
   @Prop(String)
   cafeName: string;

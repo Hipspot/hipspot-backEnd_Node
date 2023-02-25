@@ -12,7 +12,6 @@ export class CafeController {
 
   @Get('/:cafeId')
   findOne(@Param('cafeId') id: string) {
-    console.log(id);
     return this.cafeService.findOne(id);
   }
 }

@@ -4,6 +4,9 @@ import { Document } from 'mongoose';
 @Schema({ collection: 'price' })
 export class Price extends Document {
   @Prop(String)
+  cafeId: string;
+
+  @Prop(String)
   americano: string;
 }
 

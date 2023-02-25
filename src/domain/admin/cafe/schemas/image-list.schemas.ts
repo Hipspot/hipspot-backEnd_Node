@@ -6,7 +6,7 @@ export type ImageTabList = 'store' | 'menu';
 @Schema({ collection: 'image_list' })
 export class ImageList extends Document {
   @Prop(String)
-  cafeId: number;
+  cafeId: string;
 
   @Prop([String])
   store: string[];

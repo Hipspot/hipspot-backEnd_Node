@@ -1,11 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { ImageTabList } from 'src/domain/admin/cafe/schemas/image-list.schemas';
+import { OpeningHours } from 'src/domain/admin/cafe/schemas/opening-hours.schemas';
 
 @Schema({ collection: 'cafe' })
 export class Cafe extends Document {
-  @Prop(Number)
-  cafeId: number;
+  @Prop(String)
+  cafeId: string;
 
   @Prop(String)
   cafeName: string;
@@ -13,11 +14,8 @@ export class Cafe extends Document {
   @Prop(String)
   address: string;
 
-  @Prop([String])
-  businessDay: string[];
-
-  @Prop(String)
-  businessTime: string | null;
+  @Prop({ type: Object })
+  openingHours: OpeningHours;
 
   @Prop(String)
   contactNum: string;

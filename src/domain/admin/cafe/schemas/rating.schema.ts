@@ -3,6 +3,9 @@ import { Document } from 'mongoose';
 
 @Schema({ collection: 'rating' })
 export class Rating extends Document {
+  @Prop(String)
+  cafeId: string;
+
   @Prop(Number)
   review: number;
 

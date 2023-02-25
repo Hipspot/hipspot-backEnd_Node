@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Cafe, CafeSchema } from 'src/domain/app/cafe/schemas/cafe.schema';
 import { CafeController } from './cafe.controller';
 import { CafeService } from './cafe.service';
 import { CafeSubDocuments, CafeSubSchemas } from './schemas';
@@ -24,6 +25,7 @@ const {
     MongooseModule.forFeature([
       { name: OpeningHours.name, schema: openingHoursSchema },
     ]),
+    MongooseModule.forFeature([{ name: Cafe.name, schema: CafeSchema }]),
   ],
   controllers: [CafeController],
   providers: [CafeService],

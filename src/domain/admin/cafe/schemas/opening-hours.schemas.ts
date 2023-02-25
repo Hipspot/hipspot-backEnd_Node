@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { convertTime } from 'src/utils/helper/convert';
+import { convertTime } from 'src/libs/utils/helper/convert';
 
 export type Day = '월' | '화' | '수' | '목' | '금' | '토' | '일' | '매일';
 
@@ -9,10 +9,13 @@ export class OpeningHours extends Document {
   @Prop(String)
   cafeId: string;
 
+  @Prop(String || null)
+  time: string | null;
+
   @Prop({ type: Object })
-  timeBlock: {
+  openingHours: {
     annotation: string;
-    businessTime: { days: Day[]; time: string }[];
+    timeBlock: { days: Day[]; time: string }[];
   };
   /**
    * @description 영업시간을 나타내는 정해진 형식의 string 값을 받아서 객체 형식으로 변환
