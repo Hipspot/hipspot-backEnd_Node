@@ -9,29 +9,30 @@
  * @param str 예시에 적은 형식으로 입력되는 string 값
  */
 export const convertTime = (str: string) => {
-  if (!str.length) return;
-  const timeModel: {
+  if (!str.length || str === '-') return { annotation: '', timeBlock: [] };
+  const businessTime: {
     annotation: string;
     timeBlock: { day: string[]; time: string }[];
   } = { annotation: '', timeBlock: [] };
 
   if (str.includes('//')) {
     const temp = str.split('//');
-    timeModel.annotation = temp.pop().trim();
+    businessTime.annotation = temp.pop().trim();
     str = temp.join();
   }
+
   const blocks = str.split('&');
   if (str) {
     for (let i = 0; i < blocks.length; i++) {
       const blockStr = blocks[i].trim();
       if (!blockStr) return;
       const firstDigitIndex = blockStr.match(/\d/).index;
-      const blockTime = {
+      const block = {
         day: blockStr.substring(0, firstDigitIndex).trim().split(','),
         time: blockStr.substring(firstDigitIndex).trim(),
       };
-      timeModel.timeBlock.push(blockTime);
+      businessTime.timeBlock.push(block);
     }
   }
-  return timeModel;
+  return businessTime;
 };
