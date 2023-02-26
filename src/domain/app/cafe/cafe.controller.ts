@@ -5,13 +5,13 @@ import { CafeService } from './cafe.service';
 export class CafeController {
   constructor(private readonly cafeService: CafeService) {}
 
-  @Get('/info')
-  find() {
-    return this.cafeService.find();
+  @Get('')
+  getCafe() {
+    return '카페 Id값으로 검색해주세요';
   }
 
   @Get('/:cafeId')
-  findOne(@Param('cafeId') id: string) {
-    return this.cafeService.findOne(id);
+  getCafeById(@Param('cafeId') id: string) {
+    return this.cafeService.getCafe(id);
   }
 }

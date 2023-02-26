@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ProjectionType } from 'mongoose';
 import { Geojson } from './schemas/Geojson.schemas';
 
 @Injectable()
@@ -9,8 +9,12 @@ export class MapService {
     @InjectModel(Geojson.name) private geoJSONModel: Model<Geojson>,
   ) {}
 
-  async allData() {
-    const geojson = await this.geoJSONModel.find({});
+  async getGeojson(cafeId?: string, projection?: ProjectionType<Geojson>) {
+    const geojson = await this.geoJSONModel.find(
+      cafeId ? { cafeId } : {},
+      projection || {},
+    );
+
     return geojson;
   }
 }
