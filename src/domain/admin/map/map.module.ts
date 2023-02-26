@@ -12,8 +12,16 @@ import { MapService } from './map.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Geojson.name, schema: geojsonSchema }]),
-    MongooseModule.forFeature([{ name: Price.name, schema: priceSchema }]),
+    MongooseModule.forFeature([
+      {
+        name: Geojson.name,
+        schema: geojsonSchema,
+      },
+      {
+        name: Price.name,
+        schema: priceSchema,
+      },
+    ]),
     CafeModule,
     LocationModule,
   ],

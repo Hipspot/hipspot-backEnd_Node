@@ -5,7 +5,6 @@ import { AppModule } from './domain/app/app.module';
 
 async function bootstrap() {
   mongoose.set('debug', true);
-
   if (process.env.NODE_ENV == 'admin') {
     const app = await NestFactory.create(AdminModule, { cors: true });
     await app.listen(5002);
