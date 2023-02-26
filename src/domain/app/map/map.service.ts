@@ -15,6 +15,6 @@ export class MapService {
       projection || {},
     );
 
-    return geojson;
+    return cafeId ? geojson[0] : geojson;
   }
 }

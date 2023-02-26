@@ -14,6 +14,6 @@ export class CafeService {
       cafeId ? { cafeId } : {},
       projection || {},
     );
-    return cafe;
+    return cafeId ? cafe[0] : cafe;
   }
 }
