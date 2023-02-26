@@ -6,18 +6,27 @@ export class Geojson extends Document {
   @Prop(String)
   type: string;
 
-  @Prop({ type: Object, coordinates: [Number] })
+  @Prop({ type: Object, geometry: { coordinates: [Number], type: String } })
   geometry: {
-    type: string;
+    type: 'Point';
     coordinates: [number, number];
   };
-  @Prop({ type: Object, properties: Object })
+  @Prop({
+    type: Object,
+    properties: {
+      cafeId: String,
+      cafeName: String,
+      filterList: [String],
+      thumbNail: String,
+      reasonablePrice: Number || null,
+    },
+  })
   properties: {
-    cafeId: number;
+    cafeId: string;
     cafeName: string;
-    filterId: number;
+    filterList: string[];
     thumbNail: string;
-    resonablePrice: number;
+    resonablePrice: number | null;
   };
 }
 

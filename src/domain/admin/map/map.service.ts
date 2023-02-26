@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Geojson } from 'src/domain/app/map/schemas/map.schemas';
+import { Geojson } from 'src/domain/app/map/schemas/Geojson.schemas';
 import { CafeService } from '../cafe/cafe.service';
 import { LocationService } from './location/location.service';
 
@@ -42,8 +42,8 @@ export class MapService {
         properties: {
           cafeId,
           cafeName,
-          filterList: filterList,
-          resonablePrice: price.americano || null,
+          filterList: filterList.map(Number),
+          resonablePrice: Number(price.americano) || null,
           thumbnail: imageList.store?.[0] || imageList.menu?.[0] || null,
         },
         geometry: {
@@ -51,7 +51,8 @@ export class MapService {
           codrinates: [location.lat, location.lng],
         },
       };
-      await this.geojsonModel.findOneAndUpdate(
+
+      await this.geojsonModel.updateOne(
         { properties: { cafeId: cafeId } },
         { $set: geojson, $unset: { cafeId: 0, store: 0, menu: 0 } },
         { upsert: true },

@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Geojson, geojsonSchema } from 'src/domain/app/map/schemas/map.schemas';
+import {
+  Geojson,
+  geojsonSchema,
+} from 'src/domain/app/map/schemas/Geojson.schemas';
 import { CafeModule } from '../cafe/cafe.module';
 import { Price, priceSchema } from '../cafe/schemas/price.schemas';
 import { LocationModule } from './location/location.module';

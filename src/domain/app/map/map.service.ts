@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Geojson } from './schemas/map.schemas';
+import { Geojson } from './schemas/Geojson.schemas';
 
 @Injectable()
 export class MapService {
