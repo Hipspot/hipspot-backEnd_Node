@@ -19,6 +19,7 @@ export class MapService {
 
   async updateGeojson() {
     const cafeList = await this.cafeService.getCafe();
+    console.log(cafeList.length);
     for (let i = 0; i < cafeList.length; i++) {
       const { cafeId, cafeName, imageList } = cafeList[i];
       const [price] = await this.cafeService.getPrice(cafeId, {
@@ -37,23 +38,23 @@ export class MapService {
         filterListCSV: 0,
       });
 
-      const geojson = {
+      const geojson: Pick<Geojson, 'type' | 'properties' | 'geometry'> = {
         type: 'Feature',
         properties: {
           cafeId,
           cafeName,
           filterList: filterList.map(Number),
           resonablePrice: Number(price.americano) || null,
-          thumbnail: imageList.store?.[0] || imageList.menu?.[0] || null,
+          thumbNail: imageList.store?.[0] || imageList.menu?.[0] || null,
         },
         geometry: {
           type: 'Point',
-          codrinates: [location.lat, location.lng],
+          coordinates: [location.lat, location.lng],
         },
       };
 
       await this.geojsonModel.updateOne(
-        { properties: { cafeId: cafeId } },
+        { 'properties.cafeId': cafeId },
         { $set: geojson, $unset: { cafeId: 0, store: 0, menu: 0 } },
         { upsert: true },
       );
