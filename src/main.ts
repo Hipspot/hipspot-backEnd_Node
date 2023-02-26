@@ -7,11 +7,11 @@ async function bootstrap() {
   mongoose.set('debug', true);
   if (process.env.NODE_ENV == 'admin') {
     const app = await NestFactory.create(AdminModule, { cors: true });
-    await app.listen(5002);
+    await app.listen(5001);
     return;
   }
 
   const app = await NestFactory.create(AppModule, { cors: true });
-  await app.listen(5001);
+  await app.listen(5000);
 }
 bootstrap();
