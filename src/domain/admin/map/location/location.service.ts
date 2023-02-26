@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import axios from 'axios';
-import { Model } from 'mongoose';
+import { Model, ProjectionType } from 'mongoose';
 import { Location } from './schemas/location.schemas';
 @Injectable()
 export class LocationService {
@@ -9,8 +9,14 @@ export class LocationService {
     @InjectModel(Location.name) private LocationModel: Model<Location>,
   ) {}
 
-  async getLocationData(cafeId?: number) {
-    const map = await this.LocationModel.find(cafeId ? { cafeId } : {});
+  async getLocationData(
+    cafeId?: string,
+    projection?: ProjectionType<Location>,
+  ) {
+    const map = await this.LocationModel.find(
+      cafeId ? { cafeId } : {},
+      projection || {},
+    );
 
     return map;
   }

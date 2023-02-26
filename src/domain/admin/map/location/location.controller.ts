@@ -8,7 +8,7 @@ export class LocationController {
   @Get('/:id')
   async getMapData(@Param('id') id: string) {
     if (!Number(id)) return 'id값을 확인해주세요';
-    return await this.locationService.getLocationData(Number(id));
+    return await this.locationService.getLocationData(id);
   }
 
   @Patch('')

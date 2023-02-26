@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ProjectionType } from 'mongoose';
 import { OpeningHours } from './schemas/opening-hours.schemas';
 import { ImageList } from './schemas/image-list.schemas';
 import { Info } from './schemas/info.schmas';
@@ -19,45 +19,70 @@ export class CafeService {
     private openingHoursModel: Model<OpeningHours>,
     @InjectModel(ImageList.name) private imageListModel: Model<ImageList>,
     @InjectModel(Price.name) private priceModel: Model<Price>,
-    @InjectModel(FilterList.name) private filterListModel: Model<FileList>,
+    @InjectModel(FilterList.name) private filterListModel: Model<FilterList>,
     @InjectModel(Cafe.name) private cafeModel: Model<Cafe>,
   ) {}
 
-  async getInfo(cafeId?: string) {
-    const info = await this.infoModel.find(cafeId ? { cafeId } : {});
+  async getInfo(cafeId?: string, projection?: ProjectionType<Info>) {
+    const info = await this.infoModel.find(
+      cafeId ? { cafeId } : {},
+      projection || {},
+    );
     return info;
   }
 
-  async getOpeningHours(cafeId?: string) {
+  async getOpeningHours(
+    cafeId?: string,
+    projection?: ProjectionType<OpeningHours>,
+  ) {
     const openingHorus = await this.openingHoursModel.find(
       cafeId ? { cafeId } : {},
+      projection || {},
     );
     return openingHorus;
   }
 
-  async getImageList(cafeId?: string) {
+  async getImageList(cafeId?: string, projection?: ProjectionType<ImageList>) {
     await getBucketListObjectsCommand();
-    const imageList = await this.imageListModel.find(cafeId ? { cafeId } : {});
+    const imageList = await this.imageListModel.find(
+      cafeId ? { cafeId } : {},
+      projection || {},
+    );
     return imageList;
   }
 
-  async getRating(cafeId?: string) {
-    const rating = await this.ratingModel.find(cafeId ? { cafeId } : {});
+  async getRating(cafeId?: string, projection?: ProjectionType<Rating>) {
+    const rating = await this.ratingModel.find(
+      cafeId ? { cafeId } : {},
+      projection || {},
+    );
     return rating;
   }
-  async getPrice(cafeId?: string) {
-    const price = await this.priceModel.find(cafeId ? { cafeId } : {});
+  async getPrice(cafeId?: string, projection?: ProjectionType<Price>) {
+    const price = await this.priceModel.find(
+      cafeId ? { cafeId } : {},
+      projection || {},
+    );
     return price;
   }
 
-  async getCafe(cafeId?: string) {
-    const cafe = await this.cafeModel.find(cafeId ? { cafeId } : {});
+  async getCafe(cafeId?: string, projection?: ProjectionType<Cafe>) {
+    const cafe = await this.cafeModel.find(
+      cafeId ? { cafeId } : {},
+      projection || {},
+    );
     return cafe;
   }
 
-  async getFilterList(cafeId?: string) {
-    const cafe = await this.filterListModel.find(cafeId ? { cafeId } : {});
-    return cafe;
+  async getFilterList(
+    cafeId?: string,
+    projection?: ProjectionType<FilterList>,
+  ) {
+    const filterList = await this.filterListModel.find(
+      cafeId ? { cafeId } : {},
+      projection || {},
+    );
+    return filterList;
   }
 
   async updateFilterList() {
@@ -116,7 +141,7 @@ export class CafeService {
   async updateCafe() {
     const cafe = await this.cafeModel.find({});
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < cafe.length; i++) {
       const { cafeId } = cafe[i];
 
       const { cafeName, contactNum, address } = await this.infoModel.findOne(

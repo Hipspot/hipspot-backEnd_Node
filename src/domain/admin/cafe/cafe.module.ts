@@ -33,5 +33,6 @@ const {
   ],
   controllers: [CafeController],
   providers: [CafeService],
+  exports: [CafeService],
 })
 export class CafeModule {}
