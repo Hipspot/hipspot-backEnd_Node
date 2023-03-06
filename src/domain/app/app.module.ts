@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from '../../global/auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CafeModule } from './cafe/cafe.module';
@@ -21,6 +22,7 @@ import { MapModule } from './map/map.module';
     }),
     CafeModule,
     MapModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
