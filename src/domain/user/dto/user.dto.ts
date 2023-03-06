@@ -7,6 +7,17 @@ export type UserType = {
   image: string;
 };
 
+export class UserDetailDto implements Omit<UserType, 'userId'> {
+  @IsString()
+  displayName: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsUrl()
+  image: string;
+}
+
 export class UserDto {
   @IsString()
   @IsUUID()

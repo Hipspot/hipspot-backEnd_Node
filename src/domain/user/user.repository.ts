@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 import { Model } from 'mongoose';
-import { UserType } from './dto/user.dto';
+import { UserDetailDto, UserType } from './dto/user.dto';
 import { User } from './schema/user.schema';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class UserRepository {
     return user;
   }
 
-  async insertOne(userDetails: Omit<UserType, 'userId'>) {
+  async insertOne(userDetails: UserDetailDto) {
     const userId = randomUUID();
     return await this.userModel.create({ ...userDetails, userId });
   }

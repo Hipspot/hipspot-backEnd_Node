@@ -1,33 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserType } from '../../domain/user/dto/user.dto';
-import { UserRepository } from '../../domain/user/user.repository';
+import { UserService } from 'src/domain/user/user.service';
+import { UserDetailDto, UserDto } from '../../domain/user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
-  async validateUser(userDetails: Omit<UserType, 'userId'>) {
-    console.log('authService', userDetails);
+  async validateUser(userDetails: UserDetailDto) {
     const { email } = userDetails;
-    const user = await this.userRepository.findOne({ email });
-    console.log('finded user', user);
+    const user = await this.userService.findOne({ email });
     if (user) return user;
-
-    console.log('registrate new User');
-    return await this.userRepository.insertOne(userDetails);
+    return await this.userService.register(userDetails);
   }
 
-  async findUser(userId: string) {
-    return await this.userRepository.findOne({ userId });
-  }
-
-  jwtIssuance(user) {
+  jwtIssuance(user: UserDto) {
     const { userId, displayName } = user;
-
-    console.log('jwtIssuance', userId, displayName);
     return this.jwtService.sign(
       { userId, name: displayName },
       { secret: process.env.JWT_SECRET_KEY },

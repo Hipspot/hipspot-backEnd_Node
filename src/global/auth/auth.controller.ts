@@ -33,7 +33,7 @@ export class AuthController {
     });
     const token: string = this.authService.jwtIssuance(user);
     return res.redirect(
-      `http://localhost:5001/user?hipspot_access_token=${token}`,
+      `${process.env.GOOGLE_OAUTH_CALLBACK_URI}hipspot_access_token=${token}`,
     );
   }
 }
