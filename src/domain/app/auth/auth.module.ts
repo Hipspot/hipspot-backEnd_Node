@@ -1,10 +1,8 @@
-import { Module } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { Logger, Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserService } from 'src/domain/user/user.service';
-import { User, userSchema } from '../../domain/user/schema/user.schema';
-import { UserModule } from '../../domain/user/user.module';
-import { UserRepository } from '../../domain/user/user.repository';
+import { User, userSchema } from '../../user/schema/user.schema';
+import { UserModule } from '../../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { GoogleStrategy } from './strategy/google.stratagy';
@@ -20,9 +18,7 @@ import { JwtStrategy } from './strategy/jwt-strategy';
     { provide: 'AUTH_SERVICE', useClass: AuthService },
     GoogleStrategy,
     JwtStrategy,
-    JwtService,
-    UserRepository,
-    UserService,
+    Logger,
   ],
   controllers: [AuthController],
 })

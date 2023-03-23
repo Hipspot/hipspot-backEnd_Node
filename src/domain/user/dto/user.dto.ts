@@ -31,4 +31,7 @@ export class UserDto {
 
   @IsUrl()
   image: string;
+
+  @IsString()
+  refreshTokenIv: string;
 }

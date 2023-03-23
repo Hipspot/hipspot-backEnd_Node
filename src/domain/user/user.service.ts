@@ -10,7 +10,19 @@ export class UserService {
     return await this.userRepository.findOne(options);
   }
 
-  async register(userDetails: UserDetailDto) {
-    return await this.userRepository.insertOne(userDetails);
+  async register(userDetails: UserDetailDto, refreshTokenIv?: string) {
+    return await this.userRepository.insertOne({
+      ...userDetails,
+      refreshTokenIv: refreshTokenIv || null,
+    });
+  }
+
+  async tokenUpdate(userId: string, refreshTokenIv: string) {
+    console.log('register', userId, refreshTokenIv);
+    console.log(
+      await this.userRepository.findOneAndUpdate(userId, {
+        refreshTokenIv,
+      }),
+    );
   }
 }
