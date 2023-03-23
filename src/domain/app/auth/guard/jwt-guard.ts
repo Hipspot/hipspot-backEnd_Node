@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
-import { JWTException, JwtStatus } from 'src/global/exception/JWT.exception';
+import { JWTException, JwtStatus } from 'src/global/exception/jwt.exception';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {

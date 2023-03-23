@@ -1,6 +1,6 @@
 import { ExceptionFilter, Catch, ArgumentsHost, Logger } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { JWTException, JwtStatus } from '../exception/JWT.exception';
+import { JWTException, JwtStatus } from '../exception/jwt.exception';
 
 @Catch(JWTException)
 export class JWTExceptionFilter implements ExceptionFilter {
