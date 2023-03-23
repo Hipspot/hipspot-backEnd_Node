@@ -28,7 +28,6 @@ specifiers:
   axios: ^0.26.0
   class-transformer: ^0.5.1
   class-validator: ^0.14.0
-  cookie-parser: ^1.4.6
   dotenv: ^16.0.0
   eslint: ^8.0.1
   eslint-config-prettier: ^8.3.0
@@ -2408,6 +2407,12 @@ packages:
     resolution: {integrity: sha512-a1iY62/a3yhZ7qH7cNUsxoI3U/0Fe9+RnuFrpTKr+0WVOzbKlSLojShCKe20aOD1Sppv+i8Zlq0pLDuTJnwS4A==}
     dependencies:
       '@types/node': 16.18.16
+    dev: true
+
+  /@types/oauth/0.9.1:
+    resolution: {integrity: sha512-a1iY62/a3yhZ7qH7cNUsxoI3U/0Fe9+RnuFrpTKr+0WVOzbKlSLojShCKe20aOD1Sppv+i8Zlq0pLDuTJnwS4A==}
+    dependencies:
+      '@types/node': 16.18.11
     dev: true
 
   /@types/parse-json/4.0.0:
