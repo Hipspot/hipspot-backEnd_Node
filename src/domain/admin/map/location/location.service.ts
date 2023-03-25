@@ -1,12 +1,14 @@
+import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import axios from 'axios';
+
 import { Model, ProjectionType } from 'mongoose';
 import { Location } from './schemas/location.schemas';
 @Injectable()
 export class LocationService {
   constructor(
     @InjectModel(Location.name) private LocationModel: Model<Location>,
+    private readonly httpService: HttpService,
   ) {}
 
   async getLocationData(
@@ -50,7 +52,7 @@ export class LocationService {
   }
 
   async getGeocodeFromAddress(address: string) {
-    const geoCodeData = await axios({
+    const geoCodeData = await this.httpService.axiosRef({
       method: 'GET',
       url: `https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode`,
       params: {
