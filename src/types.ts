@@ -6,3 +6,10 @@ export type mapFitCoord = {
 export type filterData = { categories: string[]; items: string[] };
 
 export type Coordinate = { lng: number; lat: number };
+
+export type CoordSet = {
+  startLng: number;
+  startLat: number;
+  endLng: number;
+  endLat: number;
+};

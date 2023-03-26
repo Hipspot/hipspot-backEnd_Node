@@ -15,14 +15,21 @@ export class UnAuthorizedFilter implements ExceptionFilter {
     const res = ctx.getResponse<Response>();
     const req = ctx.getRequest<Request>();
 
-    if (exception.getStatus() === HttpStatus.UNAUTHORIZED)
+    const status = exception.getStatus();
+
+    if (status === HttpStatus.UNAUTHORIZED) {
       Logger.warn(
         `No Auth, redirect to login page  ----  ${
           HttpStatus[exception.getStatus()]
         } --- user : ${req.user}`,
       );
-    res.redirect(`${process.env.CLIENT_LOGIN_PAGE}`);
+      return res.redirect(`${process.env.CLIENT_LOGIN_PAGE}`);
+    }
 
-    return exception.message;
+    res.status(status).json({
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      message: exception.message,
+    });
   }
 }

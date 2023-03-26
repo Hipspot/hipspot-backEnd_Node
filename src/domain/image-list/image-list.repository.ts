@@ -11,13 +11,17 @@ export class ImageListRepository {
     filter: FilterQuery<ImageList>,
     updateQuery: UpdateQuery<ImageList>,
   ) {
-    await this.imageListModel.updateOne(filter, updateQuery);
+    return await this.imageListModel.findOneAndUpdate(filter, updateQuery);
   }
 
-  async find(
+  async findOne(
     filter: FilterQuery<ImageList>,
     projection?: ProjectionType<ImageList>,
   ) {
-    await this.imageListModel.findOne(filter, projection);
+    return await this.imageListModel.findOne(filter, projection);
+  }
+
+  async findAll() {
+    return await this.imageListModel.find();
   }
 }

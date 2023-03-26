@@ -2,11 +2,11 @@ import { IsNumber } from 'class-validator';
 
 export class MapboxPedastrianAPIDto {
   @IsNumber()
-  startX: number;
+  startLng: number;
   @IsNumber()
-  startY: number;
+  startLat: number;
   @IsNumber()
-  endX: number;
+  endLng: number;
   @IsNumber()
-  endY: number;
+  endLat: number;
 }

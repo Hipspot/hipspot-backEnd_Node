@@ -1,13 +1,11 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-
-import { Model, ProjectionType } from 'mongoose';
-import { Location } from './schemas/location.schemas';
+import { ProjectionType } from 'mongoose';
+import { LocationRepository } from './location.repository';
 @Injectable()
 export class LocationService {
   constructor(
-    @InjectModel(Location.name) private LocationModel: Model<Location>,
+    private readonly locationRepository: LocationRepository,
     private readonly httpService: HttpService,
   ) {}
 
@@ -15,40 +13,32 @@ export class LocationService {
     cafeId?: string,
     projection?: ProjectionType<Location>,
   ) {
-    const map = await this.LocationModel.find(
-      cafeId ? { cafeId } : {},
-      projection || {},
-    );
-
-    return map;
+    return await this.locationRepository.findOne(cafeId, projection);
   }
 
   async updateLocation() {
-    const locationList = await this.LocationModel.find({});
+    const locationList = await this.locationRepository.findAll();
 
     for (let i = 0; i < locationList.length; i++) {
       const { cafeId, address } = locationList[i];
       const {
-        x: lat,
-        y: lng,
+        x: lng,
+        y: lat,
         roadAddress,
         jibunAddress: lot_address,
       } = await this.getGeocodeFromAddress(address);
 
-      await this.LocationModel.updateOne(
-        { cafeId },
-        {
-          $set: {
-            lat: parseFloat(lat),
-            lng: parseFloat(lng),
-            address: roadAddress,
-            lot_address,
-          },
+      await this.locationRepository.updateOne(cafeId, {
+        $set: {
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
+          address: roadAddress,
+          lot_address,
         },
-      );
+      });
     }
 
-    return await this.LocationModel.find({});
+    return await this.locationRepository.findAll();
   }
 
   async getGeocodeFromAddress(address: string) {

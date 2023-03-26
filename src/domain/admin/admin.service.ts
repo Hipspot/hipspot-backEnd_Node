@@ -57,7 +57,7 @@ export class AdminService {
 
   async getImageList(cafeId?: string, projection?: ProjectionType<ImageList>) {
     await getBucketListObjectsCommand();
-    const imageList = await this.imageListRepository.find(
+    const imageList = await this.imageListRepository.findOne(
       cafeId ? { cafeId } : {},
       projection || {},
     );
@@ -148,7 +148,7 @@ export class AdminService {
         { $set: { menu: imageList.menu, store: imageList.store } },
       );
     }
-    return await this.imageListRepository.find({});
+    return await this.imageListRepository.findAll();
   }
 
   async updateCafe() {
@@ -161,7 +161,7 @@ export class AdminService {
         { cafeId },
         { _id: 0 },
       );
-      const imageList = await this.imageListRepository.find(
+      const imageList = await this.imageListRepository.findOne(
         { cafeId },
         { _id: 0, cafdId: 0 },
       );
@@ -196,7 +196,7 @@ export class AdminService {
         _id: 0,
         cafeId: 0,
       });
-      const [location] = await this.locationService.getLocationData(cafeId, {
+      const location = await this.locationService.getLocationData(cafeId, {
         _id: 0,
         cafeId: 0,
         lot_address: 0,
