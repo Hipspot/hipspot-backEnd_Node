@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MapboxModule } from '../mapbox/mapbox.module';
 import { CafeController } from './cafe.controller';
+import { CafeRepository } from './cafe.repository';
 import { CafeService } from './cafe.service';
 import { Cafe, CafeSchema } from './schemas/cafe.schema';
 
@@ -11,7 +12,7 @@ import { Cafe, CafeSchema } from './schemas/cafe.schema';
     MapboxModule,
   ],
   controllers: [CafeController],
-  providers: [CafeService],
+  providers: [CafeService, CafeRepository],
   exports: [CafeService],
 })
 export class CafeModule {}

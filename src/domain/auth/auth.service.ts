@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/domain/user/user.repository';
 import { UserService } from 'src/domain/user/user.service';
-import { UserDetailDto, UserDto } from '../../user/dto/user.dto';
+import { UserDetailDto, UserDto } from '../user/dto/user.dto';
 import * as cryptoUtils from './utils/crypto';
 
 @Injectable()

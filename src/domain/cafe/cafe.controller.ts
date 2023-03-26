@@ -11,8 +11,8 @@ export class CafeController {
   }
 
   @Get('/recommend/nearby')
-  async getNearbyCafeList() {
-    return await this.cafeService.getNearbyCafeList();
+  async getNearbyCafeList(coord: [number, number]) {
+    return await this.cafeService.getNearbyCafeList(coord);
   }
 
   @Get('/recommend/high-rated')
