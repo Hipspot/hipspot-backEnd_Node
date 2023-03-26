@@ -79,7 +79,36 @@ export class CafeController {
 
   @Get('/recommend/high-rated')
   async getHighRatedCafes() {
-    return await this.cafeService.getHighRatedCafes();
+    const highRating = await this.cafeService.getHighRatedCafes();
+
+    const result: { cafeId: string; star: number; imageUrl: string[] }[] =
+      await Promise.all(
+        highRating.map(async (cafe) => {
+          const { cafeId, star } = cafe;
+          const imageListData = await this.imageListService.getImageList(
+            cafeId,
+            {
+              cafeId: 0,
+              _id: 0,
+            },
+          );
+          const parseDoc = Object.entries(Object.entries(imageListData)[2][1]);
+          const imageUrl = parseDoc
+            .map(([key, values]) => {
+              if (values)
+                return (values as string[]).map(
+                  (value) =>
+                    `https://hipspot.s3.ap-northeast-2.amazonaws.com/${cafeId}/${key}/${value}`,
+                );
+            })
+            .filter((value) => value)
+            .flat();
+
+          return { cafeId, star, imageUrl };
+        }),
+      );
+
+    return result;
   }
   @Get('/recommend/new')
   async getNewlyOpencafeList() {

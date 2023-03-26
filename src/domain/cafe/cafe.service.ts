@@ -1,30 +1,25 @@
-import { Model, ProjectionType } from 'mongoose';
+import { ProjectionType } from 'mongoose';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Cafe } from './schemas/cafe.schema';
 import { CafeRepository } from './cafe.repository';
 import { MapboxService } from '../mapbox/mapbox.service';
 import { LocationRepository } from '../location/location.repository';
 import { calcDistanceInMeter } from 'src/libs/utils/helper/calcDistanceInMeter';
+import { calcRating } from 'src/libs/utils/helper/calcRating';
 
 @Injectable()
 export class CafeService {
   constructor(
-    @InjectModel(Cafe.name) private cafeModel: Model<Cafe>, // @InjectModel(Cafe.name) private cafeModel: Model<CafeDocument>,
     private readonly mapboxService: MapboxService,
     private readonly cafeRepository: CafeRepository,
     private readonly locationRepository: LocationRepository,
   ) {}
 
   async getCafe(cafeId?: string, projection?: ProjectionType<Cafe>) {
-    const cafe = await this.cafeModel.find(
-      cafeId ? { cafeId } : {},
-      projection || {},
-    );
-    return cafeId ? cafe[0] : cafe;
+    return await this.cafeRepository.findOne(cafeId, projection);
   }
   async getCafeList() {
-    return await this.cafeRepository.getCafe();
+    return await this.cafeRepository.findAll();
   }
 
   async getNearbyCafeList(
@@ -75,8 +70,18 @@ export class CafeService {
     return result.sort((a, b) => a.distance - b.distance);
   }
 
-  async getHighRatedCafes() {
-    return 'high-rated';
+  async getHighRatedCafes(count = 10) {
+    const ratingList = await this.cafeRepository.findAllRating();
+
+    const topRating = ratingList
+      .sort((a, b) => {
+        const ratingA = calcRating(a.star, a.review);
+        const ratingB = calcRating(b.star, b.review);
+        return ratingB - ratingA;
+      })
+      .slice(0, count);
+
+    return topRating;
   }
   async getNewlyOpencafeList() {
     return 'newly-open';

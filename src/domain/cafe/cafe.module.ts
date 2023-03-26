@@ -7,16 +7,20 @@ import { CafeController } from './cafe.controller';
 import { CafeRepository } from './cafe.repository';
 import { CafeService } from './cafe.service';
 import { Cafe, CafeSchema } from './schemas/cafe.schema';
+import { Rating, ratingSchema } from './schemas/rating.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Cafe.name, schema: CafeSchema }]),
+    MongooseModule.forFeature([
+      { name: Cafe.name, schema: CafeSchema },
+      { name: Rating.name, schema: ratingSchema },
+    ]),
     MapboxModule,
     LocationModule,
     ImageListModule,
   ],
   controllers: [CafeController],
   providers: [CafeService, CafeRepository],
-  exports: [CafeService],
+  exports: [CafeService, CafeRepository],
 })
 export class CafeModule {}

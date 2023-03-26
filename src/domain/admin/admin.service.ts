@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ProjectionType } from 'mongoose';
 import { getBucketListObjectsCommand } from 'src/libs/aws/getObjectLists';
+import { CafeRepository } from '../cafe/cafe.repository';
 import { CafeService } from '../cafe/cafe.service';
 import { Cafe } from '../cafe/schemas/cafe.schema';
 import { ImageListRepository } from '../image-list/image-list.repository';
-import { ImageListService } from '../image-list/image-list.service';
 import { LocationService } from '../location/location.service';
 import { Geojson } from '../map/schemas/Geojson.schemas';
 import { FilterList } from './schemas/filter-list.schemas';
@@ -22,14 +22,12 @@ export class AdminService {
     private readonly cafeService: CafeService,
     private readonly locationService: LocationService,
     @InjectModel(Info.name) private infoModel: Model<Info>,
-    @InjectModel(Rating.name) private ratingModel: Model<Rating>,
     @InjectModel(OpeningHours.name)
     private openingHoursModel: Model<OpeningHours>,
     @InjectModel(Price.name) private priceModel: Model<Price>,
     @InjectModel(FilterList.name) private filterListModel: Model<FilterList>,
-    @InjectModel(Cafe.name) private cafeModel: Model<Cafe>,
+    private readonly cafeRepository: CafeRepository,
     private readonly imageListRepository: ImageListRepository,
-    private readonly imageListService: ImageListService,
   ) {}
 
   getHello(): string {
@@ -65,10 +63,7 @@ export class AdminService {
   }
 
   async getRating(cafeId?: string, projection?: ProjectionType<Rating>) {
-    const rating = await this.ratingModel.find(
-      cafeId ? { cafeId } : {},
-      projection || {},
-    );
+    const rating = await this.cafeRepository.findOne(cafeId, projection || {});
     return rating;
   }
   async getPrice(cafeId?: string, projection?: ProjectionType<Price>) {
@@ -80,10 +75,7 @@ export class AdminService {
   }
 
   async getCafe(cafeId?: string, projection?: ProjectionType<Cafe>) {
-    const cafe = await this.cafeModel.find(
-      cafeId ? { cafeId } : {},
-      projection || {},
-    );
+    const cafe = await this.cafeRepository.findOne(cafeId, projection || {});
     return cafe;
   }
 
@@ -152,7 +144,7 @@ export class AdminService {
   }
 
   async updateCafe() {
-    const cafe = await this.cafeModel.find({});
+    const cafe = await this.cafeRepository.findOne();
 
     for (let i = 0; i < cafe.length; i++) {
       const { cafeId } = cafe[i];
@@ -170,7 +162,7 @@ export class AdminService {
         { _id: 0, cafeId: 0 },
       );
 
-      await this.cafeModel.updateOne(
+      return await this.cafeRepository.updateOne(
         { cafeId },
         {
           $set: {
@@ -183,8 +175,6 @@ export class AdminService {
         },
       );
     }
-
-    return await this.cafeModel.find({});
   }
 
   async updateGeojson() {

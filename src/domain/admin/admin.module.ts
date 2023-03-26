@@ -29,10 +29,6 @@ import { ImageListModule } from '../image-list/image-list.module';
         schema: priceSchema,
       },
       {
-        name: Rating.name,
-        schema: ratingSchema,
-      },
-      {
         name: OpeningHours.name,
         schema: openingHoursSchema,
       },
