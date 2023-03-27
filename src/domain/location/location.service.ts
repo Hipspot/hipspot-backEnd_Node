@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
-import { ProjectionType } from 'mongoose';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ProjectionType, UpdateQuery } from 'mongoose';
 import { LocationRepository } from './location.repository';
 @Injectable()
 export class LocationService {
@@ -9,6 +9,9 @@ export class LocationService {
     private readonly httpService: HttpService,
   ) {}
 
+  async getLocationAll() {
+    return await this.locationRepository.findAll();
+  }
   async getLocationData(
     cafeId?: string,
     projection?: ProjectionType<Location>,
@@ -16,7 +19,15 @@ export class LocationService {
     return await this.locationRepository.findOne(cafeId, projection);
   }
 
-  async updateLocation() {
+  async updateOne(cafeId: string, updateQuery: UpdateQuery<Location>) {
+    if (!(await this.locationRepository.findOne(cafeId))) {
+      throw new HttpException('cafe 등록을 먼저 해주세요', HttpStatus.OK);
+    }
+
+    return await this.locationRepository.findAndUpdateOne(cafeId, updateQuery);
+  }
+
+  async addressUpdate() {
     const locationList = await this.locationRepository.findAll();
 
     for (let i = 0; i < locationList.length; i++) {
@@ -29,12 +40,10 @@ export class LocationService {
       } = await this.getGeocodeFromAddress(address);
 
       await this.locationRepository.updateOne(cafeId, {
-        $set: {
-          lat: parseFloat(lat),
-          lng: parseFloat(lng),
-          address: roadAddress,
-          lot_address,
-        },
+        lat: parseFloat(lat),
+        lng: parseFloat(lng),
+        address: roadAddress,
+        lot_address,
       });
     }
 

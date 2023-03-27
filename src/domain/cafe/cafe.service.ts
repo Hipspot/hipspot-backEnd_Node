@@ -6,6 +6,9 @@ import { MapboxService } from '../mapbox/mapbox.service';
 import { LocationRepository } from '../location/location.repository';
 import { calcDistanceInMeter } from 'src/libs/utils/helper/calcDistanceInMeter';
 import { calcRating } from 'src/libs/utils/helper/calcRating';
+import { arrayNotContains } from 'class-validator';
+import { ImageListService } from '../image-list/image-list.service';
+import { Rating } from './schemas/rating.schema';
 
 @Injectable()
 export class CafeService {
@@ -13,6 +16,7 @@ export class CafeService {
     private readonly mapboxService: MapboxService,
     private readonly cafeRepository: CafeRepository,
     private readonly locationRepository: LocationRepository,
+    private readonly imageListService: ImageListService,
   ) {}
 
   async getCafe(cafeId?: string, projection?: ProjectionType<Cafe>) {
@@ -79,14 +83,57 @@ export class CafeService {
         const ratingB = calcRating(b.star, b.review);
         return ratingB - ratingA;
       })
-      .slice(0, count);
+      .slice(0, count) as object & { _doc: any }[];
 
-    return topRating;
+    return topRating.map((v) => v._doc);
   }
-  async getNewlyOpencafeList() {
-    return 'newly-open';
+  async getNewlyOpencafeList(coord: { startLat: number; startLng: number }) {
+    const { startLat, startLng } = coord;
+    const newlyOpencafeList = await this.locationRepository.find({
+      since: { $gt: new Date('2022-01-01') },
+    });
+    const result = await Promise.all(
+      newlyOpencafeList.map(async ({ cafeId, lat, lng }) => {
+        console.log(lat, lng);
+        const routes = await this.mapboxService.getPedastrianRoutes({
+          startLat,
+          startLng,
+          endLat: lat,
+          endLng: lng,
+        });
+
+        return { cafeId, ...routes };
+      }),
+    );
+    return result;
   }
   async getPopularCafeList() {
     return 'popular';
+  }
+
+  async addImageUrlList(array: { cafeId: string; [key: string]: any }[]) {
+    console.log(array);
+    return await Promise.all(
+      array.map(async (cafe) => {
+        const { cafeId } = cafe;
+        const imageListData = await this.imageListService.getImageList(cafeId, {
+          cafeId: 0,
+          _id: 0,
+        });
+        const parseDoc = Object.entries(Object.entries(imageListData)[2][1]);
+        const imageUrl = parseDoc
+          .map(([key, values]) => {
+            if (values)
+              return (values as string[]).map(
+                (value) =>
+                  `https://hipspot.s3.ap-northeast-2.amazonaws.com/${cafeId}/${key}/${value}`,
+              );
+          })
+          .filter((value) => value)
+          .flat();
+
+        return { ...cafe, imageUrl };
+      }),
+    );
   }
 }

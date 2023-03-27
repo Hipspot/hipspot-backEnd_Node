@@ -17,6 +17,9 @@ export class Location extends Document {
 
   @Prop(Number)
   lng: number;
+
+  @Prop(Date)
+  since: Date | null;
 }
 
 export const LocationSchema = SchemaFactory.createForClass(Location);

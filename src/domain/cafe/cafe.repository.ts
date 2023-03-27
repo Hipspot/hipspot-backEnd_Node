@@ -25,7 +25,7 @@ export class CafeRepository {
   }
 
   async findAllRating() {
-    const ratingList = await this.ratingModel.find();
+    const ratingList = await this.ratingModel.find({}, { _id: 0 });
     return ratingList;
   }
 

@@ -144,7 +144,7 @@ export class AdminService {
   }
 
   async updateCafe() {
-    const cafe = await this.cafeRepository.findOne();
+    const cafe = await this.cafeRepository.findAll();
 
     for (let i = 0; i < cafe.length; i++) {
       const { cafeId } = cafe[i];
