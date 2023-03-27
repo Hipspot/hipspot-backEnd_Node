@@ -16,7 +16,7 @@ export class CafeRepository {
       cafeId ? { cafeId } : {},
       projection || {},
     );
-    return cafe;
+    return cafe[0];
   }
 
   async findAll() {

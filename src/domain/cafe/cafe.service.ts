@@ -66,7 +66,9 @@ export class CafeService {
           endLng: lng,
         });
 
-        return { cafeId, ...routes };
+        const { cafeName } = await this.cafeRepository.findOne(cafeId);
+
+        return { cafeId, cafeName, ...routes };
       }),
     );
 
@@ -83,9 +85,17 @@ export class CafeService {
         const ratingB = calcRating(b.star, b.review);
         return ratingB - ratingA;
       })
-      .slice(0, count) as object & { _doc: any }[];
+      .slice(0, count);
 
-    return topRating.map((v) => v._doc);
+    const result = await Promise.all(
+      topRating.map(async ({ star, review, cafeId }) => {
+        const { cafeName } = await this.cafeRepository.findOne(cafeId);
+
+        return { star, review, cafeId, cafeName };
+      }),
+    );
+
+    return result;
   }
   async getNewlyOpencafeList(coord: { startLat: number; startLng: number }) {
     const { startLat, startLng } = coord;
@@ -94,7 +104,6 @@ export class CafeService {
     });
     const result = await Promise.all(
       newlyOpencafeList.map(async ({ cafeId, lat, lng }) => {
-        console.log(lat, lng);
         const routes = await this.mapboxService.getPedastrianRoutes({
           startLat,
           startLng,
@@ -102,7 +111,9 @@ export class CafeService {
           endLng: lng,
         });
 
-        return { cafeId, ...routes };
+        const { cafeName } = await this.cafeRepository.findOne(cafeId);
+
+        return { cafeId, cafeName, ...routes };
       }),
     );
     return result;
@@ -112,7 +123,6 @@ export class CafeService {
   }
 
   async addImageUrlList(array: { cafeId: string; [key: string]: any }[]) {
-    console.log(array);
     return await Promise.all(
       array.map(async (cafe) => {
         const { cafeId } = cafe;
