@@ -3,26 +3,51 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
-import { LocationModule } from './map/location/location.module';
-import { CafeModule } from './cafe/cafe.module';
-import { MapModule } from './map/map.module';
+import { LocationModule } from '../location/location.module';
+import { Geojson, geojsonSchema } from '../map/schemas/Geojson.schemas';
+import { CafeModule } from '../cafe/cafe.module';
+import { Price, priceSchema } from './schemas/price.schemas';
+import { Rating, ratingSchema } from './schemas/rating.schema';
+import {
+  OpeningHours,
+  openingHoursSchema,
+} from './schemas/opening-hours.schemas';
+import { FilterList, filterListSchema } from './schemas/filter-list.schemas';
+import { Info, infoSchema } from './schemas/info.schmas';
+import { Cafe, CafeSchema } from '../cafe/schemas/cafe.schema';
+import { ImageListModule } from '../image-list/image-list.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: ['.amdin.env'],
-    }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGO_URI'),
-      }),
-      inject: [ConfigService],
-    }),
+    MongooseModule.forFeature([
+      {
+        name: Geojson.name,
+        schema: geojsonSchema,
+      },
+      {
+        name: Price.name,
+        schema: priceSchema,
+      },
+      {
+        name: OpeningHours.name,
+        schema: openingHoursSchema,
+      },
+      {
+        name: FilterList.name,
+        schema: filterListSchema,
+      },
+      {
+        name: Info.name,
+        schema: infoSchema,
+      },
+      {
+        name: Cafe.name,
+        schema: CafeSchema,
+      },
+    ]),
     LocationModule,
     CafeModule,
-    MapModule,
+    ImageListModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],

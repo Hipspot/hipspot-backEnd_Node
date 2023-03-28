@@ -14,6 +14,7 @@ specifiers:
   '@nestjs/platform-express': ^8.0.0
   '@nestjs/schematics': ^8.0.0
   '@nestjs/testing': ^8.0.0
+  '@types/axios': ^0.14.0
   '@types/cookie-parser': ^1.4.3
   '@types/dotenv': ^8.2.0
   '@types/express': ^4.17.13
@@ -25,9 +26,10 @@ specifiers:
   '@types/supertest': ^2.0.11
   '@typescript-eslint/eslint-plugin': ^5.0.0
   '@typescript-eslint/parser': ^5.0.0
-  axios: ^0.26.0
+  axios: link:@nest/js/axios
   class-transformer: ^0.5.1
   class-validator: ^0.14.0
+  cookie-parser: ^1.4.6
   dotenv: ^16.0.0
   eslint: ^8.0.1
   eslint-config-prettier: ^8.3.0
@@ -60,9 +62,10 @@ dependencies:
   '@nestjs/mongoose': 9.2.1_cmwb562qtcxv7hnf5kijq54uki
   '@nestjs/passport': 9.0.3_ajebcnomotz225cztrmzhvaeiq
   '@nestjs/platform-express': 8.4.7_7tsmhnugyerf5okgqzer2mfqme
+  '@types/axios': 0.14.0
   '@types/dotenv': 8.2.0
   '@types/mongoose': 5.11.97
-  axios: 0.26.1
+  axios: link:@nest/js/axios
   class-transformer: 0.5.1
   class-validator: 0.14.0
   cookie-parser: 1.4.6
@@ -2249,6 +2252,15 @@ packages:
     resolution: {integrity: sha512-yOlFc+7UtL/89t2ZhjPvvB/DeAr3r+Dq58IgzsFkOAvVC6NMJXmCGjbptdXdR9qsX7pKcTL+s87FtYREi2dEEQ==}
     dev: true
 
+  /@types/axios/0.14.0:
+    resolution: {integrity: sha512-KqQnQbdYE54D7oa/UmYVMZKq7CO4l8DEENzOKc4aBRwxCXSlJXGz83flFx5L7AWrOQnmuN3kVsRdt+GZPPjiVQ==}
+    deprecated: This is a stub types definition for axios (https://github.com/mzabriskie/axios). axios provides its own type definitions, so you don't need @types/axios installed!
+    dependencies:
+      axios: 0.27.2
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@types/babel__core/7.20.0:
     resolution: {integrity: sha512-+n8dL/9GWblDO0iU6eZAwEIJVr5DWigtle+Q6HLOrh/pdbXOhOtqzq8VPPE2zvNJzSKY4vH/z3iT3tn0A3ypiQ==}
     dependencies:
@@ -2407,12 +2419,6 @@ packages:
     resolution: {integrity: sha512-a1iY62/a3yhZ7qH7cNUsxoI3U/0Fe9+RnuFrpTKr+0WVOzbKlSLojShCKe20aOD1Sppv+i8Zlq0pLDuTJnwS4A==}
     dependencies:
       '@types/node': 16.18.16
-    dev: true
-
-  /@types/oauth/0.9.1:
-    resolution: {integrity: sha512-a1iY62/a3yhZ7qH7cNUsxoI3U/0Fe9+RnuFrpTKr+0WVOzbKlSLojShCKe20aOD1Sppv+i8Zlq0pLDuTJnwS4A==}
-    dependencies:
-      '@types/node': 16.18.11
     dev: true
 
   /@types/parse-json/4.0.0:
@@ -2895,14 +2901,6 @@ packages:
 
   /axios/0.26.0:
     resolution: {integrity: sha512-lKoGLMYtHvFrPVt3r+RBMp9nh34N0M8zEfCWqdWZx6phynIEhQqAdydpyBAAG211zlhX9Rgu08cOamy6XjE5Og==}
-    dependencies:
-      follow-redirects: 1.15.2
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios/0.26.1:
-    resolution: {integrity: sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==}
     dependencies:
       follow-redirects: 1.15.2
     transitivePeerDependencies:

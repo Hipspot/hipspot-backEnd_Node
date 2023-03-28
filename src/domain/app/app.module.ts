@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from './auth/auth.module';
+import { AdminModule } from '../admin/admin.module';
+import { AuthModule } from '../auth/auth.module';
+import { CafeModule } from '../cafe/cafe.module';
+import { MapModule } from '../map/map.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CafeModule } from './cafe/cafe.module';
-import { MapModule } from './map/map.module';
 
 @Module({
   imports: [
@@ -13,16 +14,11 @@ import { MapModule } from './map/map.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGO_URI'),
-      }),
-      inject: [ConfigService],
-    }),
+    MongooseModule.forRoot(process.env.MONGO_URI),
     CafeModule,
     MapModule,
     AuthModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
