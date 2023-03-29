@@ -11,9 +11,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
-import { UserService } from 'src/domain/user/user.service';
 import { AuthService } from './auth.service';
 import { ParsedGoogltAuthProfileType } from './dto/google-auth.dto';
+import { AppleAuthGuard } from './guard/apple-auth-guard';
 import { GoogleAuthGuard } from './guard/google-auth-guard';
 
 @Controller('auth')
@@ -26,8 +26,14 @@ export class AuthController {
 
   @Get('login/google')
   @UseGuards(GoogleAuthGuard)
-  handleLogin(@Req() req: Request) {
+  handleGoogleLogin(@Req() req: Request) {
     return { msg: 'google', user: req.user };
+  }
+
+  @Get('login/apple')
+  @UseGuards(AppleAuthGuard)
+  handleAppleLogin(@Req() req: Request) {
+    return { msg: 'apple', user: req.user };
   }
 
   //google AuthGuard에서 확인 이후 이 컨트롤러로 user정보 전달
