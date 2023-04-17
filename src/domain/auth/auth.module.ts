@@ -5,6 +5,7 @@ import { User, userSchema } from '../user/schema/user.schema';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { AppleStrategy } from './strategy/apple.strategy';
 import { GoogleStrategy } from './strategy/google.stratagy';
 import { JwtStrategy } from './strategy/jwt-strategy';
 
@@ -17,6 +18,7 @@ import { JwtStrategy } from './strategy/jwt-strategy';
   providers: [
     { provide: 'AUTH_SERVICE', useClass: AuthService },
     GoogleStrategy,
+    AppleStrategy,
     JwtStrategy,
     Logger,
   ],
