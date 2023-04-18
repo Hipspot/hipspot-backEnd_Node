@@ -104,7 +104,9 @@ export class AuthController {
       sameSite: true,
     });
 
-    const accessToken: string = this.authService.accessTokenInssuance(user.id);
+    const accessToken: string = this.authService.accessTokenInssuance(
+      user.userId,
+    );
     // 발급된 accessToken 클라이언트에 전달
     return res.redirect(
       `${process.env.CLIENT_REDIRECT_PAGE}?access_token=${accessToken}`,
