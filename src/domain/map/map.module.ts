@@ -10,5 +10,6 @@ import { Geojson, geojsonSchema } from './schemas/Geojson.schemas';
   ],
   controllers: [MapController],
   providers: [MapService],
+  exports: [MapService],
 })
 export class MapModule {}

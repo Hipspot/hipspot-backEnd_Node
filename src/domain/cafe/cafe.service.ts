@@ -9,6 +9,7 @@ import { calcRating } from 'src/libs/utils/helper/calcRating';
 import { arrayNotContains } from 'class-validator';
 import { ImageListService } from '../image-list/image-list.service';
 import { Rating } from './schemas/rating.schema';
+import { getS3ImageUrl } from 'src/libs/utils/helper/getS3Url';
 
 @Injectable()
 export class CafeService {
@@ -134,9 +135,8 @@ export class CafeService {
         const imageUrl = parseDoc
           .map(([key, values]) => {
             if (values)
-              return (values as string[]).map(
-                (value) =>
-                  `https://hipspot.s3.ap-northeast-2.amazonaws.com/${cafeId}/${key}/${value}`,
+              return (values as string[]).map((value) =>
+                getS3ImageUrl({ cafeId, key, value }),
               );
           })
           .filter((value) => value)

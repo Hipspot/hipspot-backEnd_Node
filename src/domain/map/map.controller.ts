@@ -12,7 +12,6 @@ export class MapController {
 
   @Get('/:cafeId')
   getGeojsonDataById(@Query('cafeId') cafeId) {
-    if (cafeId) return this.mapService.getGeojson(cafeId);
-    return this.mapService.getGeojson();
+    return this.mapService.getGeojsonOne(cafeId);
   }
 }
