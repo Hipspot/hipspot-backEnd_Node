@@ -9,12 +9,18 @@ export class MapService {
     @InjectModel(Geojson.name) private geoJSONModel: Model<Geojson>,
   ) {}
 
-  async getGeojson(cafeId?: string, projection?: ProjectionType<Geojson>) {
-    const geojson = await this.geoJSONModel.find(
-      cafeId ? { cafeId } : {},
+  async getGeojsonOne(cafeId: string, projection?: ProjectionType<Geojson>) {
+    const geojson = await this.geoJSONModel.findOne(
+      { 'properties.cafeId': cafeId },
       projection || {},
     );
 
-    return cafeId ? geojson[0] : geojson;
+    return geojson;
+  }
+
+  async getGeojson(projection?: ProjectionType<Geojson>) {
+    const geojson = await this.geoJSONModel.find({}, projection || {});
+
+    return geojson;
   }
 }
