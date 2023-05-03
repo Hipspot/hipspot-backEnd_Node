@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ImageListModule } from '../image-list/image-list.module';
 import { LocationModule } from '../location/location.module';
-import { MapboxModule } from '../mapbox/mapbox.module';
+import { MapboxModule } from '../../module/mapbox/mapbox.module';
 import { CafeController } from './cafe.controller';
 import { CafeRepository } from './cafe.repository';
 import { CafeService } from './cafe.service';

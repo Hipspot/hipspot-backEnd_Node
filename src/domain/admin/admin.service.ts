@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ProjectionType } from 'mongoose';
-import { getBucketListObjectsCommand } from 'src/libs/aws/getObjectLists';
 import { CafeRepository } from '../cafe/cafe.repository';
 import { CafeService } from '../cafe/cafe.service';
 import { Cafe } from '../cafe/schemas/cafe.schema';
@@ -14,20 +13,29 @@ import { Info } from './schemas/info.schmas';
 import { OpeningHours } from './schemas/opening-hours.schemas';
 import { Price } from './schemas/price.schemas';
 import { Rating } from './schemas/rating.schema';
+import { AwsS3Service } from 'src/module/aws-s3/aws-s3.service';
+import { getS3ImageUrl } from 'src/libs/utils/helper/getS3Url';
+import { ImageProcessingService } from 'src/module/image-processing/image-processing.service';
+import { SharpService } from 'src/module/image-processing/sharp/sharp.service';
+import { getThumbNailUrl } from 'src/libs/utils/helper/getS3Url';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectModel(Geojson.name) private geojsonModel: Model<Geojson>,
-    private readonly cafeService: CafeService,
-    private readonly locationService: LocationService,
     @InjectModel(Info.name) private infoModel: Model<Info>,
     @InjectModel(OpeningHours.name)
     private openingHoursModel: Model<OpeningHours>,
     @InjectModel(Price.name) private priceModel: Model<Price>,
     @InjectModel(FilterList.name) private filterListModel: Model<FilterList>,
-    private readonly cafeRepository: CafeRepository,
+
     private readonly imageListRepository: ImageListRepository,
+    private readonly cafeService: CafeService,
+    private readonly locationService: LocationService,
+    private readonly cafeRepository: CafeRepository,
+    private readonly awsS3Service: AwsS3Service,
+    private readonly imageProcessingService: ImageProcessingService,
+    private readonly sharpService: SharpService,
   ) {}
 
   getHello(): string {
@@ -54,7 +62,6 @@ export class AdminService {
   }
 
   async getImageList(cafeId?: string, projection?: ProjectionType<ImageList>) {
-    await getBucketListObjectsCommand();
     const imageList = await this.imageListRepository.findOne(
       cafeId ? { cafeId } : {},
       projection || {},
@@ -125,7 +132,7 @@ export class AdminService {
   }
 
   async updateImageListData() {
-    const s3data = await getBucketListObjectsCommand();
+    const s3data = await this.awsS3Service.getBucketListObjectsCommand();
     if (!s3data) {
       throw new Error('s3 데이터가 없습니다.');
     }
@@ -179,9 +186,8 @@ export class AdminService {
 
   async updateGeojson() {
     const cafeList = await this.cafeService.getCafeList();
-    console.log(cafeList.length);
     for (let i = 0; i < cafeList.length; i++) {
-      const { cafeId, cafeName, imageList } = cafeList[i];
+      const { cafeId, cafeName } = cafeList[i];
       const [price] = await this.getPrice(cafeId, {
         _id: 0,
         cafeId: 0,
@@ -205,7 +211,7 @@ export class AdminService {
           cafeName,
           filterList: filterList.map(Number),
           resonablePrice: Number(price.americano) || null,
-          thumbNail: imageList.store?.[0] || imageList.menu?.[0] || null,
+          thumbNail: getThumbNailUrl(cafeId),
         },
         geometry: {
           type: 'Point',
@@ -220,5 +226,51 @@ export class AdminService {
       );
     }
     return await this.geojsonModel.find({});
+  }
+
+  async updateThumbNail() {
+    const allImageList = await this.imageListRepository.findAll();
+
+    const processImageList = allImageList.map(async (imageItem) => {
+      const { cafeId, store, menu } = imageItem;
+
+      const [group, item] = store[0]
+        ? ['store', store[0]]
+        : menu[0]
+        ? ['menu', menu[0]]
+        : [null, null];
+
+      if (!(group && item)) {
+        console.log(`${cafeId} 사진이 없습니다`);
+        return cafeId;
+      }
+      try {
+        const thumbNailUrl = getS3ImageUrl({ cafeId, key: group, value: item });
+        const imageBuffer =
+          await this.imageProcessingService.downloadImageFromUrl(thumbNailUrl);
+        const resized = await this.sharpService.resizeImage(
+          imageBuffer,
+          80,
+          80,
+        );
+        const uploadResult = await this.awsS3Service.uploadImageToS3Bucket(
+          resized,
+          `${cafeId}/thumbNail.jpg`,
+        );
+        return uploadResult;
+      } catch (e) {
+        console.log('updateThumbNail 에러', e);
+      }
+    });
+
+    return await Promise.all(processImageList)
+      .then(() => ({
+        status: 200,
+        message: '성공',
+      }))
+      .catch((e) => ({
+        status: 200,
+        message: '썸네일 저장이 되지않은 카페가 있습니다.',
+      }));
   }
 }
