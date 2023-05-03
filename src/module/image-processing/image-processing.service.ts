@@ -13,14 +13,15 @@ export class ImageProcessingService {
     try {
       const response = await this.httpService.axiosRef({
         method: 'GET',
-        url,
+        url: encodeURI(url),
         responseType: 'arraybuffer',
       });
 
       return Buffer.from(response.data, 'binary');
     } catch (error) {
       console.error(`Error downloading image from URL: ${url}`);
-      throw error;
+
+      throw url;
     }
   }
 

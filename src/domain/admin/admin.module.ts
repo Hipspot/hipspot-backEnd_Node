@@ -15,6 +15,7 @@ import { Info, infoSchema } from './schemas/info.schmas';
 import { Cafe, CafeSchema } from '../cafe/schemas/cafe.schema';
 import { ImageListModule } from '../image-list/image-list.module';
 import { AwsS3Module } from 'src/module/aws-s3/aws-s3.module';
+import { ImageProcessingModule } from 'src/module/image-processing/image-processing.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { AwsS3Module } from 'src/module/aws-s3/aws-s3.module';
     LocationModule,
     CafeModule,
     ImageListModule,
+    ImageProcessingModule,
     AwsS3Module,
   ],
   controllers: [AdminController],

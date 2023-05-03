@@ -9,6 +9,6 @@ import { AwsS3Module } from '../aws-s3/aws-s3.module';
   imports: [AwsS3Module, SharpModule, HttpModule],
   controllers: [ImageProcessingController],
   providers: [ImageProcessingService, Logger],
-  exports: [ImageProcessingService],
+  exports: [ImageProcessingService, SharpModule],
 })
 export class ImageProcessingModule {}

@@ -69,4 +69,14 @@ export class AdminController {
         return `${option} 옵션은 존재하지 않습니다.`;
     }
   }
+
+  @Patch('/image/thumbNail')
+  async updateThumbNail(@Query('option') option) {
+    switch (option) {
+      case 'update':
+        return await this.adminService.updateThumbNail();
+      default:
+        return `${option} 옵션은 존재하지 않습니다.`;
+    }
+  }
 }

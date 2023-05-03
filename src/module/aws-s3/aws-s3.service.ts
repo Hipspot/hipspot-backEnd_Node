@@ -46,7 +46,7 @@ export class AwsS3Service {
       Bucket: bucketName,
       Key: key,
       Body: buffer,
-      ContentType: 'image/jpeg',
+      ContentType: 'image/jpg',
     };
 
     try {
