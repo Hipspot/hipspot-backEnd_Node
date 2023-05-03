@@ -2,7 +2,7 @@ import { ProjectionType } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { Cafe } from './schemas/cafe.schema';
 import { CafeRepository } from './cafe.repository';
-import { MapboxService } from '../mapbox/mapbox.service';
+import { MapboxService } from '../../module/mapbox/mapbox.service';
 import { LocationRepository } from '../location/location.repository';
 import { calcDistanceInMeter } from 'src/libs/utils/helper/calcDistanceInMeter';
 import { calcRating } from 'src/libs/utils/helper/calcRating';

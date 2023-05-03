@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
@@ -7,7 +6,6 @@ import { LocationModule } from '../location/location.module';
 import { Geojson, geojsonSchema } from '../map/schemas/Geojson.schemas';
 import { CafeModule } from '../cafe/cafe.module';
 import { Price, priceSchema } from './schemas/price.schemas';
-import { Rating, ratingSchema } from './schemas/rating.schema';
 import {
   OpeningHours,
   openingHoursSchema,
@@ -16,6 +14,7 @@ import { FilterList, filterListSchema } from './schemas/filter-list.schemas';
 import { Info, infoSchema } from './schemas/info.schmas';
 import { Cafe, CafeSchema } from '../cafe/schemas/cafe.schema';
 import { ImageListModule } from '../image-list/image-list.module';
+import { AwsS3Module } from 'src/module/aws-s3/aws-s3.module';
 
 @Module({
   imports: [
@@ -48,6 +47,7 @@ import { ImageListModule } from '../image-list/image-list.module';
     LocationModule,
     CafeModule,
     ImageListModule,
+    AwsS3Module,
   ],
   controllers: [AdminController],
   providers: [AdminService],
