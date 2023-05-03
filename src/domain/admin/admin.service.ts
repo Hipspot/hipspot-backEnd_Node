@@ -250,8 +250,8 @@ export class AdminService {
           await this.imageProcessingService.downloadImageFromUrl(thumbNailUrl);
         const resized = await this.sharpService.resizeImage(
           imageBuffer,
-          80,
-          80,
+          200,
+          200,
         );
         const uploadResult = await this.awsS3Service.uploadImageToS3Bucket(
           resized,
