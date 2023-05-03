@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AwsS3Service } from './aws-s3.service';
 import { AwsS3Factory } from './aws-s3.factory';
 import { ListObjectsCommand } from '@aws-sdk/client-s3';
+import { Logger } from '@nestjs/common';
 
 // Mock S3 client 생성
 class S3ClientMock {
@@ -25,6 +26,7 @@ describe('AwsS3Service', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AwsS3Service,
+        Logger,
         {
           provide: AwsS3Factory,
           useFactory: () => ({
