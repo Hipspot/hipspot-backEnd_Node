@@ -1,0 +1,50 @@
+name: Test and Continuous Delivery
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+
+jobs:
+  continous-intergration:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: 노드 ${{ matrix.node-version }}버젼으로 실행
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: pnpm 설치
+        run: npm install -g pnpm
+      - name: 의존성 패키지 설치
+        run: pnpm install --frozen-lockfile
+      - name: 테스트 실행
+        run: pnpm test
+
+  continous-delivery:
+    needs: continous-intergration
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: 노드 ${{ matrix.node-version }} 버젼으로 실행
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+      - name: EC2에서 CD 프로세스 실행
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/hipspot_server.pem
+          chmod 600 ~/.ssh/hipspot_server.pem
+          ssh -i "~/.ssh/hipspot_server.pem" ${{secrets.SERVER_PATH}} "cd ~/hipspot-backEnd_Node/script && zsh deploy.sh"
+          rm -f ~/.ssh/hipspot_server.pem
+
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_REMOTE_SSH_KEY }}
+          SERVER_PATH: ${{ secrets.EC2_REMOTE_SERVER_PATH }}
