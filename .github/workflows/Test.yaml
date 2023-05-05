@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: pnpm 설치
-        run: npm install -g pnpm
+        run: npm install -g pnpm@7.21.0
       - name: 의존성 패키지 설치
         run: pnpm install --frozen-lockfile
       - name: 테스트 실행
