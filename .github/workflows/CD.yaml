@@ -1,13 +1,11 @@
-name: Test and Continuous Delivery
+name: Continuous Delivery
 
 on:
-  push:
-    branches: [develop]
   pull_request:
     branches: [develop]
 
 jobs:
-  continous-intergration:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
