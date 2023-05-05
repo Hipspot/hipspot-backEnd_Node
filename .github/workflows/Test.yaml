@@ -1,7 +1,9 @@
 name: Test Pushed Code
 on:
   push:
-    branches: ['*']
+    branches-ignore:
+      - main
+      - develop
 
 jobs:
   test:
