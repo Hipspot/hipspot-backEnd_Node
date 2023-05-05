@@ -38,11 +38,7 @@ jobs:
       - name: EC2에서 CD 프로세스 실행
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/hipspot_server.pem
+          echo "${{ secrets.EC2_REMOTE_SSH_KEY  }}" > ~/.ssh/hipspot_server.pem
           chmod 600 ~/.ssh/hipspot_server.pem
-          ssh -i "~/.ssh/hipspot_server.pem" ${{secrets.SERVER_PATH}} "cd ~/hipspot-backEnd_Node/script && zsh deploy.sh"
+          ssh -i "~/.ssh/hipspot_server.pem" ${{secrets.EC2_REMOTE_SERVER_PATH}} "cd ~/hipspot-backEnd_Node/script && zsh deploy.sh"
           rm -f ~/.ssh/hipspot_server.pem
-
-        env:
-          PRIVATE_KEY: ${{ secrets.EC2_REMOTE_SSH_KEY }}
-          SERVER_PATH: ${{ secrets.EC2_REMOTE_SERVER_PATH }}
