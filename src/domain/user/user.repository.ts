@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
 import { Model } from 'mongoose';
@@ -24,5 +24,11 @@ export class UserRepository {
       { userId },
       { $set: { ...updateDetails } },
     );
+  }
+  async deleteOne(userId: string) {
+    const deleteResult = await this.userModel.deleteOne({ userId }, {});
+    if (deleteResult.deletedCount === 0) {
+      throw new HttpException('유저 정보가 없습니다.', HttpStatus.BAD_REQUEST);
+    }
   }
 }

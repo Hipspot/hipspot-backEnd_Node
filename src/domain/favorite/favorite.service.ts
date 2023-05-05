@@ -76,4 +76,8 @@ export class FavoriteService {
 
     return { statuesCode: 200, message: `remove 성공`, cafeId };
   }
+
+  async unRegisterFavorite(userId: string) {
+    await this.favoriteModel.deleteOne({ userId }).exec();
+  }
 }
