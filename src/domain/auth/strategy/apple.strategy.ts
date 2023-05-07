@@ -8,7 +8,6 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
       keyID: process.env.APPLE_OAUTH_KEY_ID,
       callbackURL: process.env.APPLE_OAUTH_CALLBACK_URL,
       keyFilePath: process.env.APPLE_OAUTH_PRIVATE_KEY_PATH,
-      passReqToCallback: true,
       scope: ['email', 'name'],
     });
   }
