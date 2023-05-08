@@ -1,9 +1,8 @@
 name: Test Pushed Code
+
 on:
   push:
-    branches-ignore:
-      - main
-      - develop
+    branches-ignore: [main, develop]
 
 jobs:
   test:
