@@ -18,7 +18,7 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
     console.log('apple authenticate', req.url, 'platform', platform);
     super.authenticate(req, {
       ...options,
-      callbackURL: `${process.env.GOOGLE_OAUTH_CALLBACK_URI}?platform=${platform}`, // authenticate 오버라이딩으로 동적 Url 적용
+      callbackURL: `${process.env.APPLE_OAUTH_CALLBACK_URL}?platform=${platform}`, // authenticate 오버라이딩으로 동적 Url 적용
     });
   }
 }
