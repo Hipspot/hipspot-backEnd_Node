@@ -1,7 +1,7 @@
 name: Continuous Delivery
 
 on:
-  push:
+  pull_request:
     branches: develop
 
 jobs:
@@ -40,5 +40,5 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_REMOTE_SSH_KEY  }}" > ~/.ssh/hipspot_server.pem
           chmod 600 ~/.ssh/hipspot_server.pem
-          ssh -i "~/.ssh/hipspot_server.pem" -o StrictHostKeyChecking=no ${{secrets.EC2_USER}}@${{secrets.EC2_KNOWN_HOST}} "zsh ~/deploy.sh"
+          ssh -i "~/.ssh/hipspot_server.pem" -o StrictHostKeyChecking=no ${{secrets.EC2_USER}}@${{secrets.EC2_KNOWN_HOST}} "zsh ~/deploy.sh" 
           rm -f ~/.ssh/hipspot_server.pem
