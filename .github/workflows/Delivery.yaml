@@ -2,7 +2,8 @@ name: Continuous Delivery
 
 on:
   pull_request:
-    branches: develop
+    branches:
+      - develop
 
 jobs:
   test:
