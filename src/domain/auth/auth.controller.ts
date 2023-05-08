@@ -44,6 +44,7 @@ export class AuthController {
   async handleAppleCallback(
     @Req() req: Request,
     @Res() res: Response,
+    @Query('platform') platform: string,
     @Body() body,
   ) {
     Logger.log('apple Callback', body);
@@ -71,6 +72,35 @@ export class AuthController {
     });
 
     const accessToken: string = this.authService.accessTokenInssuance(user.id);
+
+    if (platform === 'mobile') {
+      const url = `hipspot-mobile://?access_token=${accessToken}`;
+      res.setHeader('Content-Type', 'text/html');
+      res.send(`
+          <!doctype html>
+          <html>
+            <head>
+              <title>Redirecting...</title>
+              <script>
+                setTimeout(function() {
+                  window.location = '${url}';
+                }, 100);
+              </script>
+            </head>
+            <body>
+             <a href="${url}">${url}> 버튼 눌러서 로그인하기 </a>
+            </body>
+          </html>
+        `);
+      return;
+    }
+
+    // 플랫폼 web인 경우 access토큰 파싱 가능한 url로 리다이렉트
+    if (platform === 'web') {
+      return res.redirect(
+        `${process.env.WEB_REDIRECT_PAGE}?access_token=${accessToken}`,
+      );
+    }
     // 발급된 accessToken 클라이언트에 전달
     return res.redirect(
       `${process.env.CLIENT_REDIRECT_PAGE}?access_token=${accessToken}`,
