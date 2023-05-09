@@ -2,8 +2,10 @@ name: Continuous Delivery
 
 on:
   pull_request:
-    branches:
-      - develop
+    branches: develop
+    types:
+      - opened
+      - synchronize
 
 jobs:
   test:
@@ -32,6 +34,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
       - name: 노드 ${{ matrix.node-version }} 버젼으로 실행
         uses: actions/setup-node@v3
         with:
