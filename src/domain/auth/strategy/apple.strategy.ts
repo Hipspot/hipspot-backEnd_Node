@@ -7,7 +7,7 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
       clientID: process.env.APPLE_OAUTH_CLIENT_ID,
       teamID: process.env.APPLE_OAUTH_TEAM_ID,
       keyID: process.env.APPLE_OAUTH_KEY_ID,
-      // callbackURL: process.env.APPLE_OAUTH_CALLBACK_URL,
+      callbackURL: process.env.APPLE_OAUTH_CALLBACK_URL,
       keyFilePath: process.env.APPLE_OAUTH_PRIVATE_KEY_PATH,
       scope: ['email', 'name'],
     });
@@ -18,7 +18,7 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
     console.log('apple authenticate', req.url, 'platform', platform);
     super.authenticate(req, {
       ...options,
-      callbackURL: `${process.env.APPLE_OAUTH_CALLBACK_URL}?platform=${platform}`, // authenticate 오버라이딩으로 동적 Url 적용
+      state: { platform }, // 콜백으로 받는 url에 state 쿼리 추가
     });
   }
 }
