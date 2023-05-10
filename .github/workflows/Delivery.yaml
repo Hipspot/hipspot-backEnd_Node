@@ -56,6 +56,7 @@ jobs:
           REPO_NAME=$(echo "${{github.repository}}" | awk -F '/' '{print $2}')
           cat > deploy.sh << 'EOF'
           cd ${REPO_NAME};
+          pwd;
           git checkout ${{ github.event.pull_request.head.ref }};
           git pull;
           pnpm i;
