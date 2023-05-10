@@ -44,12 +44,11 @@ export class AuthController {
   async handleAppleCallback(
     @Req() req: Request,
     @Res() res: Response,
-    @Query('platform') platform: string,
     @Body() body,
   ) {
-    Logger.log('apple Callback', body);
+    this.logger.log('apple Callback', body);
 
-    const { id_token } = body;
+    const { id_token, state } = body;
 
     const decoded = this.jwtService.decode(id_token) as { email: string };
     const email = decoded.email;
@@ -73,7 +72,7 @@ export class AuthController {
 
     const accessToken: string = this.authService.accessTokenInssuance(user.id);
 
-    if (platform === 'mobile') {
+    if (state === 'mobile') {
       const url = `hipspot-mobile://?access_token=${accessToken}`;
       res.setHeader('Content-Type', 'text/html');
       res.send(`
@@ -96,15 +95,11 @@ export class AuthController {
     }
 
     // 플랫폼 web인 경우 access토큰 파싱 가능한 url로 리다이렉트
-    if (platform === 'web') {
+    if (state === 'web') {
       return res.redirect(
         `${process.env.WEB_REDIRECT_PAGE}?access_token=${accessToken}`,
       );
     }
-    // 발급된 accessToken 클라이언트에 전달
-    return res.redirect(
-      `${process.env.CLIENT_REDIRECT_PAGE}?access_token=${accessToken}`,
-    );
   }
 
   //google AuthGuard에서 확인 이후 이 컨트롤러로 user정보 전달
@@ -113,7 +108,7 @@ export class AuthController {
   async handleRedirect(
     @Req() req: Request,
     @Res() res: Response,
-    @Query('state') platform: string,
+    @Query('platform') platform: string,
   ) {
     const { email, photo, displayName } =
       req.user as ParsedGoogltAuthProfileType;
