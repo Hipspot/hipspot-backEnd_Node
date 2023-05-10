@@ -17,6 +17,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
       - name: 노드 ${{ matrix.node-version }}버젼으로 실행
         uses: actions/setup-node@v3
         with:
@@ -33,9 +36,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: 브랜치 확인 및 컨텍스트 확인
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          runs: |
+            echo " 브랜치 확인, ${{ github.event.pull_request.head.ref }}"
+            echo " 컨텍스트 확인 , ${{ github }}"
       - name: 노드 ${{ matrix.node-version }} 버젼으로 실행
         uses: actions/setup-node@v3
         with:
@@ -45,5 +52,19 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_REMOTE_SSH_KEY  }}" > ~/.ssh/hipspot_server.pem
           chmod 600 ~/.ssh/hipspot_server.pem
-          ssh -i "~/.ssh/hipspot_server.pem" -o StrictHostKeyChecking=no ${{secrets.EC2_USER}}@${{secrets.EC2_KNOWN_HOST}} "zsh ~/deploy.sh" 
+          echo "스크립트 생성"
+          REPO_NAME=$(echo "${{github.repository}}" | awk -F '/' '{print $2}')
+          cat > deploy.sh << 'EOF'
+          cd ${REPO_NAME};
+          git checkout ${{ github.event.pull_request.head.ref }};
+          git pull;
+          pnpm i;
+          pnpm build;
+          pm2 stop prod-server;
+          pm2 start pnpm --name prod-server -- start:prod;
+          EOF
+          echo "스크립트 전송"
+          scp -i "~/.ssh/hipspot_server.pem" -o StrictHostKeyChecking=no deploy.sh ${{secrets.EC2_USER}}@${{secrets.EC2_KNOWN_HOST}}:~/deploy.sh
+          echo "스크립트 실행"
+          ssh -i "~/.ssh/hipspot_server.pem" -o StrictHostKeyChecking=no ${{secrets.EC2_USER}}@${{secrets.EC2_KNOWN_HOST}} "zsh ~/deploy.sh; rm -rf ~/deploy.sh" 
           rm -f ~/.ssh/hipspot_server.pem
