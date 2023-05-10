@@ -54,13 +54,14 @@ jobs:
           chmod 600 ~/.ssh/hipspot_server.pem
           echo "스크립트 생성"
           cat > deploy.sh << 'EOF'
+          source ~/.zshrc;
           cd ~/$(echo "${{github.repository}}" | awk -F '/' '{print $2}');
           pwd;
           git checkout ${{ github.event.pull_request.head.ref }};
-          git pull;
+          git pull origin ${{ github.event.pull_request.head.ref }};
           pnpm i;
           pnpm build;
-          pm2 stop prod-server;
+          pm2 delete prod-server;
           pm2 start pnpm --name prod-server -- start:prod;
           EOF
           echo "스크립트 전송"
