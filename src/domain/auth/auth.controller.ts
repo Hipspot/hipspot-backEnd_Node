@@ -113,7 +113,7 @@ export class AuthController {
   async handleRedirect(
     @Req() req: Request,
     @Res() res: Response,
-    @Query('platform') platform: string,
+    @Query('state') platform: string,
   ) {
     const { email, photo, displayName } =
       req.user as ParsedGoogltAuthProfileType;

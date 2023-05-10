@@ -18,7 +18,7 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
     console.log('apple authenticate', req.url, 'platform', platform);
     super.authenticate(req, {
       ...options,
-      state: { platform }, // 콜백으로 받는 url에 state 쿼리 추가
+      state: platform, // 콜백으로 받는 url에 state 쿼리 추가
     });
   }
 }
