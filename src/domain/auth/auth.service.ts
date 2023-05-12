@@ -4,6 +4,7 @@ import { UserRepository } from 'src/domain/user/user.repository';
 import { UserService } from 'src/domain/user/user.service';
 import { UserDetailDto, UserDto } from '../user/dto/user.dto';
 import * as cryptoUtils from './utils/crypto';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -39,7 +40,7 @@ export class AuthService {
   /**
    * 리프레시토큰 발급 및 db 갱신
    */
-  async refreshTokenInssuance(userId: string) {
+  async refreshTokenInssuance({ userId }: { userId: string }) {
     const iv = cryptoUtils.getRandomIv(); // iv값으로 결국 암호화 및 복호화
     const crypto = await cryptoUtils.cryptoUTFToBase64(iv, userId);
 
@@ -73,5 +74,33 @@ export class AuthService {
 
     this.logger.log(`refreshToken Validate`);
     return userId === decryptedUserId;
+  }
+
+  getHTMLForRedirectToMobile({
+    accessToken,
+    refreshToken,
+  }: {
+    accessToken: string;
+    refreshToken: string;
+  }) {
+    const url = `hipspot-mobile://?access_token=${accessToken}&refresh_token=${refreshToken}`;
+    const header = { name: 'Content-Type', value: 'text/html' };
+    const sendHTML = `
+        <!doctype html>
+        <html>
+          <head>
+            <title>Redirecting...</title>
+            <script>
+              setTimeout(function() {
+                window.location = '${url}';
+              }, 100);
+            </script>
+          </head>
+          <body>
+           <a href="${url}">${url}> 버튼 눌러서 로그인하기 </a>
+          </body>
+        </html>
+      `;
+    return { header, sendHTML };
   }
 }
