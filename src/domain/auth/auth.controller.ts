@@ -44,6 +44,7 @@ export class AuthController {
   async handleAppleCallback(
     @Req() req: Request,
     @Res() res: Response,
+    @Query('platform') platform: string,
     @Body() body,
   ) {
     this.logger.log('apple Callback', body);
