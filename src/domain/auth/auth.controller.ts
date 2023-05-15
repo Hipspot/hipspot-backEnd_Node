@@ -73,10 +73,12 @@ export class AuthController {
      */
     this.logger.log('리프레시토큰 새로 할당');
     this.logger.verbose(user);
+
+    const userId = user.userId;
     const refreshToken = await this.authService.refreshTokenInssuance({
-      userId: user.userId,
+      userId,
     });
-    const accessToken: string = this.authService.accessTokenInssuance(user.id);
+    const accessToken: string = this.authService.accessTokenInssuance(userId);
 
     /**
      * 4. 플랫폼에 맞게 리다이렉트
