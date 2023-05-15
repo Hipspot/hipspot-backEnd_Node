@@ -47,9 +47,9 @@ export class AuthController {
     @Query('platform') platform: string,
     @Body() body,
   ) {
-    Logger.log('apple Callback', body);
+    this.logger.log('apple Callback', body);
 
-    const { id_token } = body;
+    const { id_token, state } = body;
 
     const decoded = this.jwtService.decode(id_token) as { email: string };
     const email = decoded.email;
@@ -63,18 +63,13 @@ export class AuthController {
     }
     this.logger.log('리프레시토큰 새로 할당');
     this.logger.verbose(user);
-    const refreshToken = await this.authService.refreshTokenInssuance(
-      user.userId,
-    );
-    res.cookie('hipspot_refresh_token', refreshToken, {
-      httpOnly: true,
-      sameSite: true,
-    });
 
-    const accessToken: string = this.authService.accessTokenInssuance(user.id);
+    const userId = user.userId;
+    const refreshToken = await this.authService.refreshTokenInssuance(userId);
+    const accessToken: string = this.authService.accessTokenInssuance(userId);
 
-    if (platform === 'mobile') {
-      const url = `hipspot-mobile://?access_token=${accessToken}`;
+    if (state === 'mobile') {
+      const url = `hipspot-mobile://?access_token=${accessToken}&refresh_token=${refreshToken}`;
       res.setHeader('Content-Type', 'text/html');
       res.send(`
           <!doctype html>
@@ -96,15 +91,15 @@ export class AuthController {
     }
 
     // 플랫폼 web인 경우 access토큰 파싱 가능한 url로 리다이렉트
-    if (platform === 'web') {
+    if (state === 'web') {
+      res.cookie('hipspot_refresh_token', refreshToken, {
+        httpOnly: true,
+        sameSite: true,
+      });
       return res.redirect(
         `${process.env.WEB_REDIRECT_PAGE}?access_token=${accessToken}`,
       );
     }
-    // 발급된 accessToken 클라이언트에 전달
-    return res.redirect(
-      `${process.env.CLIENT_REDIRECT_PAGE}?access_token=${accessToken}`,
-    );
   }
 
   //google AuthGuard에서 확인 이후 이 컨트롤러로 user정보 전달
@@ -135,10 +130,6 @@ export class AuthController {
     const refreshToken = await this.authService.refreshTokenInssuance(
       user.userId,
     );
-    res.cookie('hipspot_refresh_token', refreshToken, {
-      httpOnly: true,
-      sameSite: true,
-    });
 
     // 발급된 accessToken 클라이언트에 전달
     const accessToken: string = this.authService.accessTokenInssuance(
@@ -148,7 +139,7 @@ export class AuthController {
     // 플랫폼아 모바일인 경우, schema 변경후 브라우저에서 해당 location으로 이동하는 JS 코드가 담긴 Html 전달
     // setTimeout으로 자동 실행
     if (platform === 'mobile') {
-      const url = `hipspot-mobile://?access_token=${accessToken}`;
+      const url = `hipspot-mobile://?access_token=${accessToken}&refresh_token=${refreshToken}`;
       res.setHeader('Content-Type', 'text/html');
       res.send(`
           <!doctype html>
@@ -171,6 +162,10 @@ export class AuthController {
 
     // 플랫폼 web인 경우 access토큰 파싱 가능한 url로 리다이렉트
     if (platform === 'web') {
+      res.cookie('hipspot_refresh_token', refreshToken, {
+        httpOnly: true,
+        sameSite: true,
+      });
       return res.redirect(
         `${process.env.WEB_REDIRECT_PAGE}?access_token=${accessToken}`,
       );
