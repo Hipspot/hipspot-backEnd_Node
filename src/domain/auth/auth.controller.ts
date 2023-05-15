@@ -62,10 +62,10 @@ export class AuthController {
     }
     this.logger.log('리프레시토큰 새로 할당');
     this.logger.verbose(user);
-    const refreshToken = await this.authService.refreshTokenInssuance(
-      user.userId,
-    );
-    const accessToken: string = this.authService.accessTokenInssuance(user.id);
+
+    const userId = user.userId;
+    const refreshToken = await this.authService.refreshTokenInssuance(userId);
+    const accessToken: string = this.authService.accessTokenInssuance(userId);
 
     if (state === 'mobile') {
       const url = `hipspot-mobile://?access_token=${accessToken}&refresh_token=${refreshToken}`;
