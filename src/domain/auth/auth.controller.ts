@@ -29,6 +29,12 @@ export class AuthController {
 
   @Get('login/dev')
   async handleDevlogin(@Res() res, @Query('platform') platform: string) {
+    if (platform !== 'web' && platform !== 'mobile')
+      throw new HttpException(
+        '쿼리로 플랫폼을 추가해주세요',
+        HttpStatus.BAD_REQUEST,
+      );
+
     const devUser = {
       email: 'dev@hipspot.xyz',
       displayName: '개발용',
@@ -40,9 +46,10 @@ export class AuthController {
     if (!user) {
       user = await this.authService.registerNewUser(devUser);
     }
-
     const { accessToken, refreshToken } =
       await this.authService.devAccessTokenIssuance();
+
+    console.log('토큰 확인', accessToken, refreshToken);
     if (platform === 'web') {
       console.log('web access token 발급');
       res.cookie('hipspot_refresh_token', refreshToken, {
@@ -76,7 +83,6 @@ export class AuthController {
         `);
       return;
     }
-    return '쿼리로 플랫폼을 추가해주세요';
   }
 
   @Get('login/google')

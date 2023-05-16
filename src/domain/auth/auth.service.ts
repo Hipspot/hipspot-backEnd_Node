@@ -45,7 +45,8 @@ export class AuthService {
         expiresIn: '-30m',
       },
     );
-    const refreshToken = this.refreshTokenInssuance({ userId: 'dev' });
+    const refreshToken = await this.refreshTokenInssuance({ userId: 'dev' });
+    console.log('토큰 발급 완료 ', accessToken, refreshToken);
     return { accessToken, refreshToken };
   }
 
