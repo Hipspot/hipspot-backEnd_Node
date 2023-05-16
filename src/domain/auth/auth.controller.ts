@@ -28,6 +28,58 @@ export class AuthController {
     private readonly logger: Logger,
   ) {}
 
+  @Get('login/dev')
+  async handleDevlogin(@Res() res, @Query('platform') platform: string) {
+    const devUser = {
+      email: 'dev@hipspot.xyz',
+      displayName: '개발용',
+      image: null,
+    };
+    //db에서 유저 확인
+    let user = await this.authService.validateUser(devUser);
+    // 가입된 유저 없는 경우 유저 생성
+    if (!user) {
+      user = await this.authService.registerNewUser(devUser);
+    }
+
+    const { accessToken, refreshToken } =
+      await this.authService.devAccessTokenIssuance();
+    if (platform === 'web') {
+      console.log('web access token 발급');
+      res.cookie('hipspot_refresh_token', refreshToken, {
+        httpOnly: true,
+        sameSite: true,
+      });
+      return res.redirect(
+        `${process.env.WEB_REDIRECT_PAGE}?access_token=${accessToken}`,
+      );
+    }
+    if (platform === 'mobile') {
+      console.log('mobile access token 발급');
+
+      const url = `hipspot-mobile://?access_token=${accessToken}&refresh_token=${refreshToken}`;
+      res.setHeader('Content-Type', 'text/html');
+      res.send(`
+          <!doctype html>
+          <html>
+            <head>
+              <title>Redirecting...</title>
+              <script>
+                setTimeout(function() {
+                  window.location = '${url}';
+                }, 100);
+              </script>
+            </head>
+            <body>
+             <a href="${url}">${url}> 버튼 눌러서 로그인하기 </a>
+            </body>
+          </html>
+        `);
+      return;
+    }
+    return '쿼리로 플랫폼을 추가해주세요';
+  }
+
   @Get('login/google')
   @UseGuards(GoogleAuthGuard)
   handleGoogleLogin(@Req() req: Request) {
@@ -44,7 +96,6 @@ export class AuthController {
   async handleAppleCallback(
     @Req() req: Request,
     @Res() res: Response,
-    @Query('platform') platform: string,
     @Body() body,
   ) {
     this.logger.log('apple Callback', body);

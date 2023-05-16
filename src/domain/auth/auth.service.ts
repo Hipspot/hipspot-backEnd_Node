@@ -36,6 +36,18 @@ export class AuthService {
     );
   }
 
+  async devAccessTokenIssuance() {
+    const accessToken = this.jwtService.sign(
+      { userId: `dev` },
+      {
+        secret: process.env.JWT_SECRET_KEY,
+        expiresIn: '-30m',
+      },
+    );
+    const refreshToken = this.refreshTokenInssuance('dev');
+    return { accessToken, refreshToken };
+  }
+
   /**
    * 리프레시토큰 발급 및 db 갱신
    */
