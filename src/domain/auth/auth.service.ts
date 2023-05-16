@@ -45,7 +45,7 @@ export class AuthService {
         expiresIn: '-30m',
       },
     );
-    const refreshToken = this.refreshTokenInssuance('dev');
+    const refreshToken = this.refreshTokenInssuance({ userId: 'dev' });
     return { accessToken, refreshToken };
   }
 
