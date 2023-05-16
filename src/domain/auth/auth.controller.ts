@@ -4,7 +4,6 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Inject,
   Logger,
   Param,
   Post,
@@ -28,6 +27,64 @@ export class AuthController {
     private readonly logger: Logger,
   ) {}
 
+  @Get('login/dev')
+  async handleDevlogin(@Res() res, @Query('platform') platform: string) {
+    if (platform !== 'web' && platform !== 'mobile')
+      throw new HttpException(
+        '쿼리로 플랫폼을 추가해주세요',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const devUser = {
+      email: 'dev@hipspot.xyz',
+      displayName: '개발용',
+      image: null,
+    };
+    //db에서 유저 확인
+    let user = await this.authService.validateUser(devUser);
+    // 가입된 유저 없는 경우 유저 생성
+    if (!user) {
+      user = await this.authService.registerNewUser(devUser);
+    }
+    const { accessToken, refreshToken } =
+      await this.authService.devAccessTokenIssuance();
+
+    console.log('토큰 확인', accessToken, refreshToken);
+    if (platform === 'web') {
+      console.log('web access token 발급');
+      res.cookie('hipspot_refresh_token', refreshToken, {
+        httpOnly: true,
+        sameSite: true,
+      });
+      return res.redirect(
+        `${process.env.WEB_REDIRECT_PAGE}?access_token=${accessToken}`,
+      );
+    }
+    if (platform === 'mobile') {
+      console.log('mobile access token 발급');
+
+      const url = `hipspot-mobile://?access_token=${accessToken}&refresh_token=${refreshToken}`;
+      res.setHeader('Content-Type', 'text/html');
+      res.send(`
+          <!doctype html>
+          <html>
+            <head>
+              <title>Redirecting...</title>
+              <script>
+                setTimeout(function() {
+                  window.location = '${url}';
+                }, 100);
+              </script>
+            </head>
+            <body>
+             <a href="${url}">${url}> 버튼 눌러서 로그인하기 </a>
+            </body>
+          </html>
+        `);
+      return;
+    }
+  }
+
   @Get('login/google')
   @UseGuards(GoogleAuthGuard)
   handleGoogleLogin(@Req() req: Request) {
@@ -44,54 +101,58 @@ export class AuthController {
   async handleAppleCallback(
     @Req() req: Request,
     @Res() res: Response,
-    @Query('platform') platform: string,
     @Body() body,
   ) {
     this.logger.log('apple Callback', body);
 
-    const { id_token, state } = body;
-
+    /**
+     * 0. 필요한 정보 파싱
+     * apple Oauth의 경우, id_token이 body로 전달됨, jwt로 디코드해서 사용
+     */
+    const { id_token, state: platform } = body;
     const decoded = this.jwtService.decode(id_token) as { email: string };
     const email = decoded.email;
     const displayName = email.split('@')[0];
+
+    /**
+     * 1. DB에서 유저 확인
+     */
     const inboundedUser = { email, displayName, image: null };
-    //db에서 유저 확인
     let user = await this.authService.validateUser(inboundedUser);
-    // 가입된 유저 없는 경우 유저 생성
+    /**
+     * 2. 가입된 유저 없는 경우 유저 생성
+     */
     if (!user) {
       user = await this.authService.registerNewUser(inboundedUser);
     }
+
+    /**
+     * 3. 엑세스토큰, 리프레시토큰 발급
+     */
     this.logger.log('리프레시토큰 새로 할당');
     this.logger.verbose(user);
 
     const userId = user.userId;
-    const refreshToken = await this.authService.refreshTokenInssuance(userId);
+    const refreshToken = await this.authService.refreshTokenInssuance({
+      userId,
+    });
     const accessToken: string = this.authService.accessTokenInssuance(userId);
 
-    if (state === 'mobile') {
-      const url = `hipspot-mobile://?access_token=${accessToken}&refresh_token=${refreshToken}`;
-      res.setHeader('Content-Type', 'text/html');
-      res.send(`
-          <!doctype html>
-          <html>
-            <head>
-              <title>Redirecting...</title>
-              <script>
-                setTimeout(function() {
-                  window.location = '${url}';
-                }, 100);
-              </script>
-            </head>
-            <body>
-             <a href="${url}">${url}> 버튼 눌러서 로그인하기 </a>
-            </body>
-          </html>
-        `);
+    /**
+     * 4. 플랫폼에 맞게 리다이렉트
+     */
+    if (platform === 'mobile') {
+      const { header, sendHTML } = this.authService.getHTMLForRedirectToMobile({
+        accessToken,
+        refreshToken,
+      });
+      res.setHeader(header.name, header.value);
+      res.send(sendHTML); // window.location()으로 리다이렉트 가능한 HTML 전송
       return;
     }
 
     // 플랫폼 web인 경우 access토큰 파싱 가능한 url로 리다이렉트
-    if (state === 'web') {
+    if (platform === 'web') {
       res.cookie('hipspot_refresh_token', refreshToken, {
         httpOnly: true,
         sameSite: true,
@@ -108,55 +169,53 @@ export class AuthController {
   async handleRedirect(
     @Req() req: Request,
     @Res() res: Response,
-    @Query('platform') platform: string,
+    @Query('platform') platform: 'mobile' | 'web',
   ) {
+    /**
+     * 0. 필요한 정보 파싱
+     * google Oauth의 경우 AuthGuard에서 user정보를 req.user에 담아서 전달
+     */
     const { email, photo, displayName } =
       req.user as ParsedGoogltAuthProfileType;
+
+    /**
+     * 1. DB에서 유저 확인
+     */
     const inboundedUser = {
       email,
       image: photo,
       displayName,
     };
 
-    //db에서 유저 확인
     let user = await this.authService.validateUser(inboundedUser);
-    // 가입된 유저 없는 경우 유저 생성
+    /**
+     * 2. 가입된 유저 없는 경우 유저 생성
+     */
     if (!user) {
       user = await this.authService.registerNewUser(inboundedUser);
     }
 
+    /**
+     * 3. 엑세스토큰, 리프레시토큰 발급
+     */
     this.logger.log('리프레시토큰 새로 할당');
     this.logger.verbose(user);
-    const refreshToken = await this.authService.refreshTokenInssuance(
-      user.userId,
-    );
+    const refreshToken = await this.authService.refreshTokenInssuance({
+      userId: user.userId,
+    });
+    const accessToken: string = this.authService.accessTokenInssuance(user.id);
 
-    // 발급된 accessToken 클라이언트에 전달
-    const accessToken: string = this.authService.accessTokenInssuance(
-      user.userId,
-    );
+    /**
+     * 4. 플랫폼에 맞게 리다이렉트
+     */
 
-    // 플랫폼아 모바일인 경우, schema 변경후 브라우저에서 해당 location으로 이동하는 JS 코드가 담긴 Html 전달
-    // setTimeout으로 자동 실행
     if (platform === 'mobile') {
-      const url = `hipspot-mobile://?access_token=${accessToken}&refresh_token=${refreshToken}`;
-      res.setHeader('Content-Type', 'text/html');
-      res.send(`
-          <!doctype html>
-          <html>
-            <head>
-              <title>Redirecting...</title>
-              <script>
-                setTimeout(function() {
-                  window.location = '${url}';
-                }, 100);
-              </script>
-            </head>
-            <body>
-             <a href="${url}">${url}> 버튼 눌러서 로그인하기 </a>
-            </body>
-          </html>
-        `);
+      const { header, sendHTML } = this.authService.getHTMLForRedirectToMobile({
+        accessToken,
+        refreshToken,
+      });
+      res.setHeader(header.name, header.value);
+      res.send(sendHTML); // window.location()으로 리다이렉트 가능한 HTML 전송
       return;
     }
 
@@ -173,49 +232,98 @@ export class AuthController {
   }
 
   /**
-   *  리프레시 토큰이 올바른 값일 경우 '/redirect', 아닐 경우 auth/login/google로 이동
+   * 리프레시 토큰으로 엑세스토큰 재발급해주는 과정
+   * 쿠키 / 쿼리에서 리프레시 토큰 확인 - 토큰 없을 경우, 올바르지 않을 경우 auth/login/google로 이동
+   * 리프레시 토큰이 올바른 값일 경우 액세스토큰 발급 후 리다이렉트
    */
   @Get('reissuance')
-  async reissue(@Req() req: Request, @Res() res: Response) {
-    const { hipspot_refresh_token } = req.cookies;
+  async reissue(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Query('refresh_token') refresh_token: string,
+    @Query('platform') platform: 'mobile' | 'web',
+  ) {
+    /**
+     * 0. 리프레시 토큰 유무 쿠키, 쿼리에서 확인,
+     *    플랫폼 확인, 디폴트는 web
+     */
+    if (!req.cookies.hipspot_refresh_token && !refresh_token)
+      return res.redirect('/auth/login/google');
 
-    this.logger.log('재발급 잘 되는가', hipspot_refresh_token);
+    const { hipspot_refresh_token } = req.cookies || refresh_token;
+    platform = platform || 'web';
 
     if (!hipspot_refresh_token) return res.redirect('/auth/login/google');
+
+    /**
+     * 1. 리프레시 토큰 디코딩. 유저 확인
+     */
+    this.logger.log('리프레시 토큰 확인', hipspot_refresh_token);
 
     const { userId, crypto } = this.jwtService.decode(
       hipspot_refresh_token,
     ) as { userId: string; crypto: string };
 
     const user = await this.authService.findUser(userId);
+    if (!user) {
+      this.logger.log('유저 없음');
+      return res.redirect('/auth/login/google');
+    }
 
-    if (!user)
-      throw new HttpException(
-        '일치하는 userId가 없습니다',
-        HttpStatus.UNAUTHORIZED,
-      );
-
+    /**
+     * 2. 리프레시토큰 유효성 검사 이후, 액세스토큰 재발급 또는 리프레시토큰 재발급
+     *
+     */
     try {
       if (await this.authService.refreshTokenValidate(user, crypto)) {
         const accessToken = this.authService.accessTokenInssuance(userId);
+        const refreshToken = hipspot_refresh_token;
+        this.logger.log('리프레시 토큰 유효, 리프레시토큰에서 액세스토큰 발급');
 
-        this.logger.log('리프레시토큰에서 액세스토큰 발급');
-        return res.redirect(
-          `${process.env.CLIENT_REDIRECT_PAGE}?access_token=${accessToken}`,
-        );
+        if (platform === 'mobile') {
+          const { header, sendHTML } =
+            this.authService.getHTMLForRedirectToMobile({
+              accessToken,
+              refreshToken,
+            });
+          res.setHeader(header.name, header.value);
+          res.send(sendHTML);
+          return;
+        }
+
+        if (platform === 'web') {
+          return res.redirect(
+            `${process.env.WEB_REDIRECT_PAGE}?access_token=${accessToken}`,
+          );
+        }
       }
     } catch (e) {
       this.logger.log('리프레시토큰 새로 할당222', e);
-      const refreshToken = await this.authService.refreshTokenInssuance(userId);
-      res.cookie('hipspot_refresh_token', refreshToken, {
-        httpOnly: true,
-        sameSite: true,
+      const refreshToken = await this.authService.refreshTokenInssuance({
+        userId,
       });
-
       const accessToken = this.authService.accessTokenInssuance(userId);
-      return res.redirect(
-        `${process.env.CLIENT_REDIRECT_PAGE}?access_token=${accessToken}`,
-      );
+
+      if (platform === 'mobile') {
+        const { header, sendHTML } =
+          this.authService.getHTMLForRedirectToMobile({
+            accessToken,
+            refreshToken,
+          });
+        res.setHeader(header.name, header.value);
+        res.send(sendHTML);
+        return;
+      }
+
+      if (platform === 'web') {
+        res.cookie('hipspot_refresh_token', refreshToken, {
+          httpOnly: true,
+          sameSite: true,
+        });
+        return res.redirect(
+          `${process.env.WEB_REDIRECT_PAGE}?access_token=${accessToken}`,
+        );
+      }
     }
   }
 }
