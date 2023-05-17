@@ -62,7 +62,6 @@ export class AuthController {
     }
     if (platform === 'mobile') {
       console.log('mobile access token 발급');
-
       const url = `hipspot-mobile://?access_token=${accessToken}&refresh_token=${refreshToken}`;
       res.setHeader('Content-Type', 'text/html');
       res.send(`
@@ -248,13 +247,19 @@ export class AuthController {
      * 0. 리프레시 토큰 유무 쿠키, 쿼리에서 확인,
      *    플랫폼 확인, 디폴트는 web
      */
-    if (!req.cookies.hipspot_refresh_token && !refresh_token)
-      return res.redirect('/auth/login/google');
 
+    console.log(
+      `리프레시토큰 확인, ${req.cookies.hipspot_refresh_token}`,
+      req.cookies,
+    );
+
+    if (!req.cookies.hipspot_refresh_token && !refresh_token)
+      throw new HttpException('리프레시 토큰 없음', HttpStatus.UNAUTHORIZED);
     const { hipspot_refresh_token } = req.cookies || refresh_token;
     platform = platform || 'web';
 
-    if (!hipspot_refresh_token) return res.redirect('/auth/login/google');
+    if (!hipspot_refresh_token)
+      throw new HttpException('리프레시 토큰 없음', HttpStatus.UNAUTHORIZED);
 
     /**
      * 1. 리프레시 토큰 디코딩. 유저 확인
@@ -268,30 +273,25 @@ export class AuthController {
     const user = await this.authService.findUser(userId);
     if (!user) {
       this.logger.log('유저 없음');
-      return res.redirect('/auth/login/google');
+      throw new HttpException('리프레시 토큰 없음', HttpStatus.UNAUTHORIZED);
     }
 
     /**
      * 2. 리프레시토큰 유효성 검사 이후, 액세스토큰 재발급 또는 리프레시토큰 재발급
-     *
+     * /
      */
     try {
       if (await this.authService.refreshTokenValidate(user, crypto)) {
         const accessToken = this.authService.accessTokenInssuance(userId);
         const refreshToken = hipspot_refresh_token;
         this.logger.log('리프레시 토큰 유효, 리프레시토큰에서 액세스토큰 발급');
-
+        console.log(accessToken);
         if (platform === 'mobile') {
-          const { header, sendHTML } =
-            this.authService.getHTMLForRedirectToMobile({
-              accessToken,
-              refreshToken,
-            });
-          res.setHeader(header.name, header.value);
-          res.send(sendHTML);
-          return;
+          res.header('Content-Type', 'application/json');
+          return res
+            .status(700)
+            .send({ access_token: accessToken, refresh_token: refreshToken });
         }
-
         if (platform === 'web') {
           return res.redirect(
             `${process.env.WEB_REDIRECT_PAGE}?access_token=${accessToken}`,
