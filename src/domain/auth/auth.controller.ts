@@ -281,7 +281,6 @@ export class AuthController {
 
     /**
      * 2. 리프레시토큰 유효성 검사 이후, 액세스토큰 재발급 또는 리프레시토큰 재발급
-     *
      */
     try {
       if (await this.authService.refreshTokenValidate(user, crypto)) {
