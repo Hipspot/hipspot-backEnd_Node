@@ -18,6 +18,7 @@ import { AuthService } from './auth.service';
 import { ParsedGoogltAuthProfileType } from './dto/google-auth.dto';
 import { AppleAuthGuard } from './guard/apple-auth-guard';
 import { GoogleAuthGuard } from './guard/google-auth-guard';
+import { JWTException, JwtStatus } from 'src/global/exception/jwt.exception';
 
 @Controller('auth')
 export class AuthController {
@@ -256,9 +257,17 @@ export class AuthController {
     if (!hipspot_refresh_token) return res.redirect('/auth/login/google');
 
     /**
-     * 1. 리프레시 토큰 디코딩. 유저 확인
+     * 1. 리프레시 토큰 유효 확인 이후 토큰 디코딩
      */
     this.logger.log('리프레시 토큰 확인', hipspot_refresh_token);
+
+    try {
+      this.jwtService.verify(hipspot_refresh_token, {
+        secret: process.env.JWT_SECRET_KEY,
+      });
+    } catch (e) {
+      throw new HttpException('리프레시토큰 잘못됨', HttpStatus.UNAUTHORIZED);
+    }
 
     const { userId, crypto } = this.jwtService.decode(
       hipspot_refresh_token,
