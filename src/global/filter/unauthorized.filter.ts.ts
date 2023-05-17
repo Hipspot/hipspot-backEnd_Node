@@ -15,6 +15,7 @@ export class UnAuthorizedFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
     const req = ctx.getRequest<Request>();
+
     const { platform } = parseQueries(req.url);
     const status = exception.getStatus();
     Logger.warn(
@@ -22,10 +23,6 @@ export class UnAuthorizedFilter implements ExceptionFilter {
         req.user
       } --- platform : ${platform}`,
     );
-
-    if (status === HttpStatus.UNAUTHORIZED && platform !== 'mobile') {
-      return res.redirect(`${process.env.CLIENT_LOGIN_PAGE}`);
-    }
 
     res.status(status).json({
       statusCode: status,
