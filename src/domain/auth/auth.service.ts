@@ -85,8 +85,9 @@ export class AuthService {
       cryptedUserId,
     );
 
-    this.logger.log(`refreshToken Validate`);
-    return userId === decryptedUserId;
+    this.logger.log(`refreshToken Validate, ${userId === decryptedUserId}`);
+    if (userId !== decryptedUserId) throw new Error('리프레시토큰 불일치');
+    return true;
   }
 
   getHTMLForRedirectToMobile({

@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { parseQueries } from 'src/libs/utils/helper/parseQuery';
 
 @Catch(HttpException)
 export class UnAuthorizedFilter implements ExceptionFilter {
@@ -15,16 +16,13 @@ export class UnAuthorizedFilter implements ExceptionFilter {
     const res = ctx.getResponse<Response>();
     const req = ctx.getRequest<Request>();
 
+    const { platform } = parseQueries(req.url);
     const status = exception.getStatus();
-
-    if (status === HttpStatus.UNAUTHORIZED) {
-      Logger.warn(
-        `No Auth, redirect to login page  ----  ${
-          HttpStatus[exception.getStatus()]
-        } --- user : ${req.user}`,
-      );
-      return res.redirect(`${process.env.CLIENT_LOGIN_PAGE}`);
-    }
+    Logger.warn(
+      `Http Exception  ----  ${HttpStatus[exception.getStatus()]} --- user : ${
+        req.user
+      } --- platform : ${platform}`,
+    );
 
     res.status(status).json({
       statusCode: status,
