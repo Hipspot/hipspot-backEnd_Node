@@ -26,7 +26,7 @@ export class Geojson extends Document {
     cafeName: string;
     filterList: number[];
     thumbNail: string;
-    resonablePrice: number | null;
+    reasonablePrice: number | null;
   };
 }
 
